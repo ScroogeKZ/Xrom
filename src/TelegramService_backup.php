@@ -24,27 +24,29 @@ class TelegramService {
         try {
             $orderTypeText = $order['order_type'] === 'astana' ? 'Астана' : 'Регионы';
             
-            $message = "🚚 *Новый заказ #{$order['id']}*\n\n" .
+            $message = "🚚 *Новая заявка #{$order['id']}*\n\n" .
                 "*Тип:* {$orderTypeText}\n" .
-                "*Клиент:* {$order['contact_name']}\n" .
-                "*Телефон:* {$order['contact_phone']}\n" .
-                "*Груз:* {$order['cargo_type']} ({$order['weight']})\n";
+                "*Клиент:* {$order['contact_person']}\n" .
+                "*Телефон:* {$order['phone']}\n" .
+                "*Груз:* {$order['cargo_type']} ({$order['weight']} кг)\n";
             
             if (!empty($order['pickup_city'])) {
                 $message .= "*Город отправления:* {$order['pickup_city']}\n";
             }
             
-            $message .= "*Адрес забора:* {$order['pickup_address']}\n";
+            $message .= "*Забор:* {$order['pickup_address']}\n";
             
             if (!empty($order['destination_city'])) {
                 $message .= "*Город назначения:* {$order['destination_city']}\n";
             }
             
-            if (!empty($order['delivery_address'])) {
-                $message .= "*Адрес доставки:* {$order['delivery_address']}\n";
-            }
+            $message .= "*Доставка:* {$order['delivery_address']}\n" .
+                "*Время готовности:* {$order['ready_time']}\n" .
+                "*Получатель:* {$order['recipient_contact']} ({$order['recipient_phone']})\n";
             
-            $message .= "*Время готовности:* {$order['ready_time']}\n";
+            if (!empty($order['comment'])) {
+                $message .= "*Комментарий:* {$order['comment']}\n";
+            }
             
             if (!empty($order['delivery_method'])) {
                 $message .= "*Способ доставки:* {$order['delivery_method']}\n";
@@ -54,14 +56,7 @@ class TelegramService {
                 $message .= "*Желаемая дата прибытия:* {$order['desired_arrival_date']}\n";
             }
             
-            if (!empty($order['notes'])) {
-                $message .= "*Комментарий:* {$order['notes']}\n";
-            }
-            
-            $message .= "\n*Дата создания:* " . date('d.m.Y H:i', strtotime($order['created_at']));
-            
             return $this->sendMessage($message);
-            
         } catch (Exception $e) {
             error_log('Ошибка отправки уведомления о новом заказе: ' . $e->getMessage());
             return false;
@@ -129,6 +124,77 @@ class TelegramService {
             
         } catch (Exception $e) {
             error_log('Ошибка отправки Telegram сообщения: ' . $e->getMessage());
+            return false;
+        }
+    }
+                $message .= "*Желаемая дата прибытия:* {$order['desired_arrival_date']}\n";
+            }
+            
+            $message .= "\n*Дата создания:* " . date('d.m.Y H:i', strtotime($order['created_at']));
+            
+            return $this->sendMessage($message);
+            
+        } catch (Exception $e) {
+            error_log('Ошибка отправки Telegram уведомления: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function sendStatusUpdateNotification($order, $oldStatus): bool {
+        if (!$this->isConfigured()) {
+            return false;
+        }
+        
+        try {
+            $statusText = $order['status'] === 'completed' ? '✅ Выполнена' : '🔄 В обработке';
+            $oldStatusText = $oldStatus === 'completed' ? '✅ Выполнена' : '🔄 В обработке';
+            
+            $message = "📋 *Обновление статуса заявки #{$order['id']}*\n\n" .
+                "*Клиент:* {$order['contact_person']}\n" .
+                "*Статус изменен:* {$oldStatusText} → {$statusText}\n" .
+                "*Дата изменения:* " . date('d.m.Y H:i');
+            
+            return $this->sendMessage($message);
+            
+        } catch (Exception $e) {
+            error_log('Ошибка отправки Telegram уведомления о статусе: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    private function sendMessage($message): bool {
+        $url = "https://api.telegram.org/bot{$this->botToken}/sendMessage";
+        
+        $data = [
+            'chat_id' => $this->chatId,
+            'text' => $message,
+            'parse_mode' => 'Markdown',
+            'disable_web_page_preview' => true
+        ];
+        
+        $options = [
+            'http' => [
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data)
+            ]
+        ];
+        
+        $context = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        
+        if ($result === false) {
+            error_log('Ошибка отправки Telegram сообщения');
+            return false;
+        }
+        
+        $response = json_decode($result, true);
+        
+        if (isset($response['ok']) && $response['ok']) {
+            error_log('Telegram уведомление отправлено успешно');
+            return true;
+        } else {
+            error_log('Ошибка Telegram API: ' . ($response['description'] ?? 'Неизвестная ошибка'));
             return false;
         }
     }

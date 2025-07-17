@@ -122,6 +122,52 @@ class ShipmentOrder {
         }
     }
     
+    public function update($id, $data) {
+        $fields = [];
+        $params = [':id' => $id];
+        
+        $allowedFields = [
+            'order_type', 'pickup_address', 'ready_time', 'cargo_type', 'weight', 'dimensions',
+            'contact_name', 'contact_phone', 'notes', 'pickup_city', 'destination_city',
+            'delivery_address', 'delivery_method', 'desired_arrival_date', 'status'
+        ];
+        
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $fields[] = "$field = :$field";
+                $params[":$field"] = $data[$field];
+            }
+        }
+        
+        if (empty($fields)) {
+            throw new Exception("No fields to update");
+        }
+        
+        $sql = "UPDATE shipment_orders SET " . implode(', ', $fields) . ", updated_at = CURRENT_TIMESTAMP WHERE id = :id RETURNING *";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Error updating shipment order: " . $e->getMessage());
+            throw new Exception("Failed to update shipment order");
+        }
+    }
+    
+    public function delete($id) {
+        $sql = "DELETE FROM shipment_orders WHERE id = :id";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $result = $stmt->execute([':id' => $id]);
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Error deleting shipment order: " . $e->getMessage());
+            throw new Exception("Failed to delete shipment order");
+        }
+    }
+    
     public function getCount($filters = []) {
         $sql = "SELECT COUNT(*) as count FROM shipment_orders WHERE 1=1";
         $params = [];
@@ -149,6 +195,67 @@ class ShipmentOrder {
         } catch (PDOException $e) {
             error_log("Error counting shipment orders: " . $e->getMessage());
             throw new Exception("Failed to count shipment orders");
+        }
+    }
+    
+    public function getOrdersByDateRange($days = 7) {
+        $sql = "SELECT DATE(created_at) as date, COUNT(*) as count 
+                FROM shipment_orders 
+                WHERE created_at >= NOW() - INTERVAL :days DAY 
+                GROUP BY DATE(created_at) 
+                ORDER BY date DESC";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':days' => $days]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error getting orders by date range: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function getPopularDestinations($limit = 5) {
+        $sql = "SELECT destination_city, COUNT(*) as count 
+                FROM shipment_orders 
+                WHERE destination_city IS NOT NULL AND destination_city != '' 
+                GROUP BY destination_city 
+                ORDER BY count DESC 
+                LIMIT :limit";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':limit' => $limit]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error getting popular destinations: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function getStatusDistribution() {
+        $sql = "SELECT status, COUNT(*) as count FROM shipment_orders GROUP BY status ORDER BY count DESC";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error getting status distribution: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function getOrderTypeDistribution() {
+        $sql = "SELECT order_type, COUNT(*) as count FROM shipment_orders GROUP BY order_type";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error getting order type distribution: " . $e->getMessage());
+            return [];
         }
     }
 }
