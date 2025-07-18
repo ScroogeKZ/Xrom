@@ -275,26 +275,26 @@ $orders = $orderModel->getAll($filters);
                                         📦 <?php echo htmlspecialchars($order['cargo_type']); ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
-                                        ⚖️ <?php echo htmlspecialchars($order['weight']); ?> кг
+                                        ⚖️ <?php echo htmlspecialchars($order['cargo_weight'] ?? 'Не указан'); ?> кг
                                     </div>
-                                    <?php if ($order['dimensions']): ?>
+                                    <?php if ($order['cargo_dimensions']): ?>
                                         <div class="text-xs text-gray-400">
-                                            📏 <?php echo htmlspecialchars($order['dimensions']); ?>
+                                            📏 <?php echo htmlspecialchars($order['cargo_dimensions']); ?>
                                         </div>
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500">
                                     <div class="font-medium text-gray-900">
-                                        👤 <?php echo htmlspecialchars($order['contact_name']); ?>
+                                        👤 <?php echo htmlspecialchars($order['pickup_contact_person'] ?? 'Не указан'); ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
-                                        📞 <a href="tel:<?php echo htmlspecialchars($order['contact_phone']); ?>" class="hover:text-blue-600">
-                                            <?php echo htmlspecialchars($order['contact_phone']); ?>
+                                        📞 <a href="tel:<?php echo htmlspecialchars($order['pickup_contact_phone'] ?? ''); ?>" class="hover:text-blue-600">
+                                            <?php echo htmlspecialchars($order['pickup_contact_phone'] ?? 'Не указан'); ?>
                                         </a>
                                     </div>
-                                    <?php if ($order['ready_time']): ?>
+                                    <?php if ($order['pickup_ready_time']): ?>
                                         <div class="text-xs text-gray-400">
-                                            ⏰ <?php echo htmlspecialchars($order['ready_time']); ?>
+                                            ⏰ <?php echo htmlspecialchars($order['pickup_ready_time']); ?>
                                         </div>
                                     <?php endif; ?>
                                 </td>

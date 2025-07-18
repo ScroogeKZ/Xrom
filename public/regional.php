@@ -16,21 +16,44 @@ $cities = [
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $shipmentOrder = new ShipmentOrder();
+        
+        // Handle file upload
+        $photoPath = null;
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/uploads/';
+            $fileName = uniqid() . '_' . basename($_FILES['photo']['name']);
+            $uploadPath = $uploadDir . $fileName;
+            
+            // Check file type
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (in_array($_FILES['photo']['type'], $allowedTypes)) {
+                if (move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPath)) {
+                    $photoPath = '/uploads/' . $fileName;
+                }
+            }
+        }
+        
         $data = [
             'order_type' => 'regional',
             'pickup_city' => $_POST['pickup_city'] ?? '',
             'pickup_address' => $_POST['pickup_address'] ?? '',
+            'pickup_ready_time' => $_POST['pickup_ready_time'] ?? '',
+            'pickup_contact_person' => $_POST['pickup_contact_person'] ?? '',
+            'pickup_contact_phone' => $_POST['pickup_contact_phone'] ?? '',
+            'cargo_type' => $_POST['cargo_type'] ?? '',
+            'cargo_weight' => $_POST['cargo_weight'] ?? '',
+            'cargo_dimensions' => $_POST['cargo_dimensions'] ?? '',
+            'cargo_value' => $_POST['cargo_value'] ?? '',
             'destination_city' => $_POST['destination_city'] ?? '',
             'delivery_address' => $_POST['delivery_address'] ?? '',
             'delivery_method' => $_POST['delivery_method'] ?? '',
             'desired_arrival_date' => $_POST['desired_arrival_date'] ?? '',
-            'ready_time' => $_POST['ready_time'] ?? '',
-            'cargo_type' => $_POST['cargo_type'] ?? '',
-            'weight' => $_POST['weight'] ?? '',
-            'dimensions' => $_POST['dimensions'] ?? '',
-            'contact_name' => $_POST['contact_person'] ?? '',
-            'contact_phone' => $_POST['phone'] ?? '',
-            'notes' => $_POST['comment'] ?? ''
+            'recipient_name' => $_POST['recipient_name'] ?? '',
+            'recipient_contact' => $_POST['recipient_contact'] ?? '',
+            'recipient_phone' => $_POST['recipient_phone'] ?? '',
+            'notes' => $_POST['notes'] ?? '',
+            'comment' => $_POST['comment'] ?? '',
+            'photo_path' => $photoPath
         ];
         
         $result = $shipmentOrder->create($data);
@@ -114,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
             
-            <form method="POST" class="space-y-6">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Город отправления *</label>
@@ -249,6 +272,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="block text-sm font-medium text-gray-700 mb-2">Комментарий</label>
                     <textarea name="comment" rows="3" 
                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📷 Фотография груза</label>
+                    <input type="file" name="photo" accept="image/*" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                    <p class="text-sm text-gray-500 mt-2">Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 5MB</p>
                 </div>
                 
                 <div class="text-center">
