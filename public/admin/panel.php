@@ -358,5 +358,340 @@ $orders = $orderModel->getAll($filters);
             </div>
         </div>
     </div>
+
+    <!-- Modal for order details -->
+    <div id="orderDetailsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between pb-3">
+                    <h3 class="text-lg font-medium text-gray-900">Детали заказа</h3>
+                    <button onclick="closeOrderDetails()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="orderDetailsContent" class="mt-2 px-7 py-3">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewOrderDetails(orderId) {
+            // Show modal
+            document.getElementById('orderDetailsModal').classList.remove('hidden');
+            
+            // Load order details via AJAX
+            fetch(`/admin/api.php?action=get_order&id=${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayOrderDetails(data.order);
+                    } else {
+                        document.getElementById('orderDetailsContent').innerHTML = 
+                            '<p class="text-red-600">Ошибка загрузки данных: ' + data.error + '</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('orderDetailsContent').innerHTML = 
+                        '<p class="text-red-600">Ошибка загрузки данных</p>';
+                });
+        }
+
+        function displayOrderDetails(order) {
+            const content = document.getElementById('orderDetailsContent');
+            const orderTypeText = order.order_type === 'astana' ? 'Доставка по Астане' : 'Межгородская доставка';
+            
+            content.innerHTML = `
+                <form id="editOrderForm" class="space-y-6" onsubmit="saveOrderChanges(event)">
+                    <input type="hidden" name="order_id" value="${order.id}">
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-xl font-bold text-gray-800">Заказ #${order.id} - ${orderTypeText}</h4>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="toggleEditMode()" id="editButton" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                                ✏️ Редактировать
+                            </button>
+                            <button type="submit" id="saveButton" class="hidden bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
+                                💾 Сохранить
+                            </button>
+                            <button type="button" onclick="cancelEdit()" id="cancelButton" class="hidden bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors">
+                                ❌ Отмена
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-900 mb-3">Основная информация</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Статус:</label>
+                                    <select name="status" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                        <option value="new" ${order.status === 'new' ? 'selected' : ''}>🆕 Новый</option>
+                                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>⏳ В обработке</option>
+                                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>✅ Завершен</option>
+                                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ Отменен</option>
+                                    </select>
+                                    <span class="view-field">${{
+                                        'new': '🆕 Новый',
+                                        'processing': '⏳ В обработке',
+                                        'completed': '✅ Завершен',
+                                        'cancelled': '❌ Отменен'
+                                    }[order.status] || order.status}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Тип заказа:</label>
+                                    <span class="view-field">${orderTypeText}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Дата создания:</label>
+                                    <span class="view-field">${new Date(order.created_at).toLocaleString('ru-RU')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-green-900 mb-3">Груз</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Тип груза:</label>
+                                    <select name="cargo_type" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Выберите тип груза</option>
+                                        <option value="лифтовые порталы" ${order.cargo_type === 'лифтовые порталы' ? 'selected' : ''}>Лифтовые порталы</option>
+                                        <option value="т-образные профили" ${order.cargo_type === 'т-образные профили' ? 'selected' : ''}>Т-образные профили</option>
+                                        <option value="металлические плинтуса" ${order.cargo_type === 'металлические плинтуса' ? 'selected' : ''}>Металлические плинтуса</option>
+                                        <option value="корзины для кондиционеров" ${order.cargo_type === 'корзины для кондиционеров' ? 'selected' : ''}>Корзины для кондиционеров</option>
+                                        <option value="декоративные решетки" ${order.cargo_type === 'декоративные решетки' ? 'selected' : ''}>Декоративные решетки</option>
+                                        <option value="перфорированные фасадные кассеты" ${order.cargo_type === 'перфорированные фасадные кассеты' ? 'selected' : ''}>Перфорированные фасадные кассеты</option>
+                                        <option value="стеклянные душевые кабины" ${order.cargo_type === 'стеклянные душевые кабины' ? 'selected' : ''}>Стеклянные душевые кабины</option>
+                                        <option value="зеркальные панно" ${order.cargo_type === 'зеркальные панно' ? 'selected' : ''}>Зеркальные панно</option>
+                                        <option value="рамы и багеты" ${order.cargo_type === 'рамы и багеты' ? 'selected' : ''}>Рамы и багеты</option>
+                                        <option value="козырьки" ${order.cargo_type === 'козырьки' ? 'selected' : ''}>Козырьки</option>
+                                        <option value="документы" ${order.cargo_type === 'документы' ? 'selected' : ''}>Документы</option>
+                                        <option value="образцы" ${order.cargo_type === 'образцы' ? 'selected' : ''}>Образцы</option>
+                                        <option value="другое" ${order.cargo_type === 'другое' ? 'selected' : ''}>Другое</option>
+                                    </select>
+                                    <span class="view-field">${order.cargo_type || 'Не указан'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Вес (кг):</label>
+                                    <input type="number" step="0.1" name="weight" value="${order.weight || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.weight || 'Не указан'} кг</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Габариты:</label>
+                                    <input type="text" name="dimensions" value="${order.dimensions || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.dimensions || 'Не указаны'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Готов к отправке:</label>
+                                    <input type="time" name="ready_time" value="${order.ready_time || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.ready_time || 'Не указано'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-900 mb-3">Адреса</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${order.order_type === 'regional' ? `
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Город отправления:</label>
+                                    <input type="text" name="pickup_city" value="${order.pickup_city || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.pickup_city || 'Не указан'}</span>
+                                </div>
+                            ` : ''}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Адрес забора:</label>
+                                <textarea name="pickup_address" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500 rows-3">${order.pickup_address || ''}</textarea>
+                                <span class="view-field">${order.pickup_address || 'Не указан'}</span>
+                            </div>
+                            ${order.order_type === 'regional' ? `
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Город назначения:</label>
+                                    <input type="text" name="destination_city" value="${order.destination_city || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.destination_city || 'Не указан'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Адрес доставки:</label>
+                                    <textarea name="delivery_address" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500 rows-3">${order.delivery_address || ''}</textarea>
+                                    <span class="view-field">${order.delivery_address || 'Не указан'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Способ доставки:</label>
+                                    <select name="delivery_method" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Выберите способ</option>
+                                        <option value="Курьер" ${order.delivery_method === 'Курьер' ? 'selected' : ''}>Курьер</option>
+                                        <option value="Самовывоз" ${order.delivery_method === 'Самовывоз' ? 'selected' : ''}>Самовывоз</option>
+                                        <option value="Терминал" ${order.delivery_method === 'Терминал' ? 'selected' : ''}>Терминал</option>
+                                    </select>
+                                    <span class="view-field">${order.delivery_method || 'Не указан'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Желаемая дата прибытия:</label>
+                                    <input type="date" name="desired_arrival_date" value="${order.desired_arrival_date || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.desired_arrival_date || 'Не указана'}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-purple-900 mb-3">Контакты отправителя</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Имя:</label>
+                                    <input type="text" name="contact_name" value="${order.contact_name || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.contact_name || 'Не указано'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Телефон:</label>
+                                    <input type="tel" name="contact_phone" value="${order.contact_phone || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.contact_phone || 'Не указан'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-orange-900 mb-3">Контакты получателя</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Имя:</label>
+                                    <input type="text" name="recipient_contact" value="${order.recipient_contact || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.recipient_contact || 'Не указано'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Телефон:</label>
+                                    <input type="tel" name="recipient_phone" value="${order.recipient_phone || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <span class="view-field">${order.recipient_phone || 'Не указан'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-yellow-900 mb-3">Комментарий</h4>
+                        <textarea name="comment" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500" rows="3">${order.comment || ''}</textarea>
+                        <span class="view-field">${order.comment || 'Не указан'}</span>
+                    </div>
+                </form>
+            `;
+        }
+
+        function closeOrderDetails() {
+            document.getElementById('orderDetailsModal').classList.add('hidden');
+        }
+
+        function updateOrderStatus(selectElement, orderId) {
+            const form = selectElement.closest('form');
+            form.submit();
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
+                // Implementation for deleting order
+                alert('Функция удаления будет реализована позже');
+            }
+        }
+
+        function toggleEditMode() {
+            const editFields = document.querySelectorAll('.edit-field');
+            const viewFields = document.querySelectorAll('.view-field');
+            const editButton = document.getElementById('editButton');
+            const saveButton = document.getElementById('saveButton');
+            const cancelButton = document.getElementById('cancelButton');
+            
+            editFields.forEach(field => field.classList.toggle('hidden'));
+            viewFields.forEach(field => field.classList.toggle('hidden'));
+            
+            editButton.classList.toggle('hidden');
+            saveButton.classList.toggle('hidden');
+            cancelButton.classList.toggle('hidden');
+        }
+
+        function cancelEdit() {
+            // Reset form and toggle back to view mode
+            const currentOrderId = document.querySelector('input[name="order_id"]').value;
+            
+            // Reload order details
+            fetch(`/admin/api.php?action=get_order&id=${currentOrderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayOrderDetails(data.order);
+                    }
+                });
+        }
+
+        function saveOrderChanges(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('editOrderForm');
+            const formData = new FormData(form);
+            const orderData = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'order_id') {
+                    orderData[key] = value;
+                }
+            }
+            
+            const orderId = formData.get('order_id');
+            
+            // Show loading state
+            const saveButton = document.getElementById('saveButton');
+            const originalText = saveButton.innerHTML;
+            saveButton.innerHTML = '⏳ Сохранение...';
+            saveButton.disabled = true;
+            
+            // Send update request
+            fetch(`/admin/api.php?action=update_order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_id: parseInt(orderId),
+                    data: orderData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    alert('Заказ успешно обновлен!');
+                    
+                    // Reload order details in view mode
+                    displayOrderDetails(data.order);
+                    
+                    // Reload the main orders table
+                    window.location.reload();
+                } else {
+                    alert('Ошибка при сохранении: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при сохранении данных');
+            })
+            .finally(() => {
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('orderDetailsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeOrderDetails();
+            }
+        });
+    </script>
 </body>
 </html>

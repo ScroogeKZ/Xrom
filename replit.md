@@ -108,6 +108,34 @@ The application is designed to be simple, reliable, and easy to maintain while p
 
 ## Recent Changes: Latest modifications with dates
 
+### July 18, 2025 - Specialized Cargo Categories & Order Editing Complete
+- ✓ Updated cargo types to company-specific specialized categories:
+  - Лифтовые порталы, Т-образные профили, Металлические плинтуса
+  - Корзины для кондиционеров, Декоративные решетки
+  - Перфорированные фасадные кассеты, Стеклянные душевые кабины
+  - Зеркальные панно, Рамы и багеты, Козырьки
+  - Документы, Образцы, Другое
+- ✓ Applied new categories across all forms (Astana, Regional, Admin editing)
+- ✓ Removed icons for cleaner professional appearance
+- ✓ Added full order editing functionality in admin panel details view
+- ✓ Created comprehensive edit form with toggle between view/edit modes
+- ✓ Implemented API endpoint for updating all order data
+- ✓ Fixed database schema issue by adding missing `updated_at` column to users table
+- ✓ All order fields now editable: status, cargo info, addresses, contacts, comments
+
+### July 17, 2025 - Migration to Replit Environment Complete
+- ✓ Successfully migrated project from Replit Agent to standard Replit environment
+- ✓ Created new PostgreSQL database with proper schema and admin user
+- ✓ Fixed database schema by adding missing columns (notes, recipient_contact, recipient_phone, comment)
+- ✓ Verified all core functionality working properly:
+  - Homepage, forms, and admin panel responding correctly
+  - Astana order creation - tested and working
+  - Regional order creation - tested and working
+  - Admin authentication system - functioning properly
+  - Database integration - fully operational
+- ✓ Project now runs cleanly with proper security practices and client/server separation
+- ✓ All migration checklist items completed successfully
+
 ### July 17, 2025 - Migration to Replit Complete & Bug Testing
 - ✓ Fixed PHP version compatibility (changed requirement from 8.3 to 8.2)
 - ✓ Created and configured PostgreSQL database with proper schema

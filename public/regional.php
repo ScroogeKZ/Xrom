@@ -175,10 +175,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select name="cargo_type" required 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Выберите тип груза</option>
+                            <option value="лифтовые порталы">Лифтовые порталы</option>
+                            <option value="т-образные профили">Т-образные профили</option>
+                            <option value="металлические плинтуса">Металлические плинтуса</option>
+                            <option value="корзины для кондиционеров">Корзины для кондиционеров</option>
+                            <option value="декоративные решетки">Декоративные решетки</option>
+                            <option value="перфорированные фасадные кассеты">Перфорированные фасадные кассеты</option>
+                            <option value="стеклянные душевые кабины">Стеклянные душевые кабины</option>
+                            <option value="зеркальные панно">Зеркальные панно</option>
+                            <option value="рамы и багеты">Рамы и багеты</option>
+                            <option value="козырьки">Козырьки</option>
                             <option value="документы">Документы</option>
-                            <option value="посылка">Посылка</option>
-                            <option value="грузы">Грузы</option>
-                            <option value="продукты">Продукты питания</option>
+                            <option value="образцы">Образцы</option>
                             <option value="другое">Другое</option>
                         </select>
                     </div>

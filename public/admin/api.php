@@ -72,6 +72,31 @@ try {
             ]);
             break;
             
+        case 'update_order':
+            if ($method !== 'POST') {
+                throw new Exception('Method not allowed');
+            }
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            $orderId = (int)$input['order_id'];
+            $orderData = $input['data'];
+            
+            // Clean empty values
+            $cleanData = [];
+            foreach ($orderData as $key => $value) {
+                if ($value !== '' && $value !== null) {
+                    $cleanData[$key] = $value;
+                }
+            }
+            
+            $updatedOrder = $orderModel->update($orderId, $cleanData);
+            
+            echo json_encode([
+                'success' => true,
+                'order' => $updatedOrder
+            ]);
+            break;
+            
         case 'delete_order':
             if ($method !== 'POST') {
                 throw new Exception('Method not allowed');
