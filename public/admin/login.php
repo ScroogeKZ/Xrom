@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userModel = new User();
             $user = $userModel->findByUsername($username);
             
-            if ($user && $userModel->verifyPassword($password, $user['password'])) {
+            if ($user && $userModel->verifyPassword($password, $user['password_hash'])) {
                 Auth::login($username, $password);
                 header('Location: /admin/panel.php');
                 exit;

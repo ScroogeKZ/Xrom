@@ -3,6 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Models\ShipmentOrder;
+use App\EmailService;
 
 $success = false;
 $error = '';
@@ -56,6 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $shipmentOrder->create($data);
         if ($result) {
             $success = true;
+            
+            // Отправляем email уведомление
+            try {
+                $emailService = new EmailService();
+                $orderData = array_merge($data, ['id' => $result]);
+                $emailService->sendOrderNotification($orderData, 'created');
+            } catch (Exception $e) {
+                error_log("Email notification failed: " . $e->getMessage());
+            }
         }
     } catch (Exception $e) {
         $error = 'Ошибка при создании заказа: ' . $e->getMessage();

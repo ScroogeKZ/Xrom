@@ -120,6 +120,7 @@ $currentUser = Auth::getCurrentUser();
                     <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
                     <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
                     <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
+                    <a href="/admin/calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
                     <span class="text-sm text-gray-600"><?php echo htmlspecialchars($currentUser['username']); ?></span>
                     <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
@@ -182,13 +183,17 @@ $currentUser = Auth::getCurrentUser();
             <!-- Распределение затрат -->
             <div class="bg-white border border-gray-200 p-6">
                 <h3 class="text-sm font-medium text-gray-900 mb-4">Распределение по затратам</h3>
-                <canvas id="priceDistributionChart" width="400" height="300"></canvas>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="priceDistributionChart"></canvas>
+                </div>
             </div>
 
             <!-- Затраты по дням -->
             <div class="bg-white border border-gray-200 p-6">
                 <h3 class="text-sm font-medium text-gray-900 mb-4">Затраты за 7 дней</h3>
-                <canvas id="dailyCostsChart" width="400" height="300"></canvas>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="dailyCostsChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -197,7 +202,9 @@ $currentUser = Auth::getCurrentUser();
             <!-- Средние затраты по типам -->
             <div class="bg-white border border-gray-200 p-6">
                 <h3 class="text-sm font-medium text-gray-900 mb-4">Средние затраты по типам</h3>
-                <canvas id="avgPriceByTypeChart" width="400" height="300"></canvas>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="avgPriceByTypeChart"></canvas>
+                </div>
             </div>
 
             <!-- Статистика по типам заказов -->

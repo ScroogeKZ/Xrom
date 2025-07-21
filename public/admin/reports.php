@@ -180,7 +180,10 @@ $regionalStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         Применить
                     </button>
                     <button type="button" onclick="exportReport()" class="text-gray-700 border border-gray-300 text-sm px-4 py-1.5 hover:border-gray-400">
-                        Экспорт отчета
+                        Экспорт Excel
+                    </button>
+                    <button type="button" onclick="exportPDF()" class="text-gray-700 border border-gray-300 text-sm px-4 py-1.5 hover:border-gray-400">
+                        Экспорт PDF
                     </button>
                 </form>
             </div>
@@ -220,13 +223,17 @@ $regionalStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- График затрат по дням -->
             <div class="bg-white border border-gray-200 p-4">
                 <h3 class="text-sm font-medium text-gray-900 mb-4">Затраты на логистику по дням</h3>
-                <canvas id="costsChart" width="400" height="300"></canvas>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="costsChart"></canvas>
+                </div>
             </div>
 
             <!-- Распределение заказов по статусам -->
             <div class="bg-white border border-gray-200 p-4">
                 <h3 class="text-sm font-medium text-gray-900 mb-4">Распределение по статусам</h3>
-                <canvas id="statusChart" width="400" height="300"></canvas>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="statusChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -251,7 +258,7 @@ $regionalStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <td class="px-3 py-2 text-sm text-gray-900"><?php echo htmlspecialchars($cargo['cargo_type']); ?></td>
                                 <td class="px-3 py-2 text-sm text-gray-500"><?php echo $cargo['count']; ?></td>
-                                <td class="px-3 py-2 text-sm text-gray-500"><?php echo number_format($cargo['avg_cost'], 0, ',', ' '); ?> ₸</td>
+                                <td class="px-3 py-2 text-sm text-gray-500"><?php echo number_format($cargo['avg_cost'] ?? 0, 0, ',', ' '); ?> ₸</td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -278,7 +285,7 @@ $regionalStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <td class="px-3 py-2 text-sm text-gray-900"><?php echo htmlspecialchars($region['destination_city']); ?></td>
                                 <td class="px-3 py-2 text-sm text-gray-500"><?php echo $region['orders_count']; ?></td>
-                                <td class="px-3 py-2 text-sm text-gray-500"><?php echo number_format($region['total_costs'], 0, ',', ' '); ?> ₸</td>
+                                <td class="px-3 py-2 text-sm text-gray-500"><?php echo number_format($region['total_costs'] ?? 0, 0, ',', ' '); ?> ₸</td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -403,6 +410,12 @@ $regionalStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const params = new URLSearchParams(window.location.search);
             params.set('action', 'export_report');
             window.open('/admin/export.php?' + params.toString(), '_blank');
+        }
+        
+        // Функция экспорта в PDF
+        function exportPDF() {
+            const params = new URLSearchParams(window.location.search);
+            window.open('/admin/export_pdf.php?' + params.toString(), '_blank');
         }
     </script>
 </body>

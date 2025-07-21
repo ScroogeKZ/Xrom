@@ -3,141 +3,169 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Models\ShipmentOrder;
+use App\Models\ActivityLog;
 use App\Auth;
 
 header('Content-Type: application/json');
 
-Auth::requireAuth();
+if (!Auth::isAuthenticated()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Не авторизован']);
+    exit;
+}
 
-$method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
-
 $orderModel = new ShipmentOrder();
+$activityLog = new ActivityLog();
 
 try {
     switch ($action) {
-        case 'get_orders':
-            $filters = [];
-            if (isset($_GET['order_type'])) $filters['order_type'] = $_GET['order_type'];
-            if (isset($_GET['status'])) $filters['status'] = $_GET['status'];
-            if (isset($_GET['search'])) $filters['search'] = $_GET['search'];
+        case 'get_order':
+            $id = $_GET['id'] ?? null;
+            if (!$id) {
+                throw new Exception('ID заказа не указан');
+            }
             
-            $page = (int)($_GET['page'] ?? 1);
-            $limit = 20;
-            $offset = ($page - 1) * $limit;
+            $order = $orderModel->getById($id);
+            if (!$order) {
+                throw new Exception('Заказ не найден');
+            }
             
-            $filters['limit'] = $limit;
-            $filters['offset'] = $offset;
-            
-            $orders = $orderModel->getAll($filters);
-            $total = $orderModel->getCount($filters);
-            
-            echo json_encode([
-                'success' => true,
-                'orders' => $orders,
-                'total' => $total,
-                'page' => $page,
-                'pages' => ceil($total / $limit)
-            ]);
+            echo json_encode($order);
             break;
             
         case 'update_status':
-            if ($method !== 'POST') {
-                throw new Exception('Method not allowed');
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Метод не поддерживается');
             }
             
-            $input = json_decode(file_get_contents('php://input'), true);
-            $orderId = (int)$input['order_id'];
-            $newStatus = $input['status'];
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? null;
+            $newStatus = $data['status'] ?? null;
             
-            $updatedOrder = $orderModel->updateStatus($orderId, $newStatus);
-            
-            echo json_encode([
-                'success' => true,
-                'order' => $updatedOrder
-            ]);
-            break;
-            
-        case 'get_order':
-            $orderId = (int)($_GET['id'] ?? 0);
-            $order = $orderModel->getById($orderId);
-            
-            if (!$order) {
-                throw new Exception('Order not found');
+            if (!$id || !$newStatus) {
+                throw new Exception('Не указаны обязательные параметры');
             }
             
-            echo json_encode([
-                'success' => true,
-                'order' => $order
-            ]);
-            break;
-            
-        case 'update_order':
-            if ($method !== 'POST') {
-                throw new Exception('Method not allowed');
+            if (!in_array($newStatus, ['new', 'processing', 'completed'])) {
+                throw new Exception('Неверный статус');
             }
             
-            $input = json_decode(file_get_contents('php://input'), true);
-            $orderId = (int)$input['order_id'];
-            $orderData = $input['data'];
+            $oldOrder = $orderModel->getById($id);
+            $result = $orderModel->updateStatus($id, $newStatus);
             
-            // Clean empty values
-            $cleanData = [];
-            foreach ($orderData as $key => $value) {
-                if ($value !== '' && $value !== null) {
-                    $cleanData[$key] = $value;
-                }
+            if ($result) {
+                $activityLog->log('status_updated', $id, [
+                    'old_status' => $oldOrder['status'],
+                    'new_status' => $newStatus
+                ]);
+                
+                echo json_encode(['success' => true]);
+            } else {
+                throw new Exception('Ошибка обновления статуса');
             }
-            
-            $updatedOrder = $orderModel->update($orderId, $cleanData);
-            
-            echo json_encode([
-                'success' => true,
-                'order' => $updatedOrder
-            ]);
             break;
             
         case 'delete_order':
-            if ($method !== 'POST') {
-                throw new Exception('Method not allowed');
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Метод не поддерживается');
             }
             
-            $input = json_decode(file_get_contents('php://input'), true);
-            $orderId = (int)$input['order_id'];
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? null;
             
-            // We'll implement soft delete by setting status to 'deleted'
-            $deletedOrder = $orderModel->updateStatus($orderId, 'deleted');
+            if (!$id) {
+                throw new Exception('ID заказа не указан');
+            }
             
-            echo json_encode([
-                'success' => true,
-                'order' => $deletedOrder
-            ]);
+            $order = $orderModel->getById($id);
+            $result = $orderModel->delete($id);
+            
+            if ($result) {
+                $activityLog->log('order_deleted', $id, [
+                    'order_data' => $order
+                ]);
+                
+                echo json_encode(['success' => true]);
+            } else {
+                throw new Exception('Ошибка удаления заказа');
+            }
             break;
             
-        case 'stats':
+        case 'get_stats':
+            $pdo = \Database::getInstance()->getConnection();
+            
             $stats = [
-                'total_orders' => $orderModel->getCount(),
-                'astana_orders' => $orderModel->getCount(['order_type' => 'astana']),
-                'regional_orders' => $orderModel->getCount(['order_type' => 'regional']),
-                'new_orders' => $orderModel->getCount(['status' => 'new']),
-                'processing_orders' => $orderModel->getCount(['status' => 'processing']),
-                'completed_orders' => $orderModel->getCount(['status' => 'completed'])
+                'total_orders' => 0,
+                'new_orders' => 0,
+                'processing_orders' => 0,
+                'completed_orders' => 0,
+                'total_cost' => 0,
+                'avg_cost' => 0
             ];
             
-            echo json_encode([
-                'success' => true,
-                'stats' => $stats
-            ]);
+            // Общая статистика
+            $stmt = $pdo->query("
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new_count,
+                    SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing_count,
+                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count,
+                    SUM(COALESCE(shipping_cost, 0)) as total_cost,
+                    AVG(COALESCE(shipping_cost, 0)) as avg_cost
+                FROM shipment_orders
+            ");
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                $stats = [
+                    'total_orders' => (int)$result['total'],
+                    'new_orders' => (int)$result['new_count'],
+                    'processing_orders' => (int)$result['processing_count'],
+                    'completed_orders' => (int)$result['completed_count'],
+                    'total_cost' => (float)$result['total_cost'],
+                    'avg_cost' => (float)$result['avg_cost']
+                ];
+            }
+            
+            echo json_encode($stats);
+            break;
+            
+        case 'search':
+            $query = $_GET['q'] ?? '';
+            if (empty($query)) {
+                echo json_encode([]);
+                break;
+            }
+            
+            $pdo = \Database::getInstance()->getConnection();
+            $stmt = $pdo->prepare("
+                SELECT id, order_type, status, pickup_address, contact_name, 
+                       contact_phone, created_at
+                FROM shipment_orders 
+                WHERE 
+                    id::text ILIKE :query 
+                    OR contact_name ILIKE :query 
+                    OR contact_phone ILIKE :query 
+                    OR pickup_address ILIKE :query
+                ORDER BY created_at DESC
+                LIMIT 10
+            ");
+            
+            $searchTerm = '%' . $query . '%';
+            $stmt->execute([':query' => $searchTerm]);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode($results);
             break;
             
         default:
-            throw new Exception('Invalid action');
+            throw new Exception('Неизвестное действие');
     }
     
 } catch (Exception $e) {
     http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    echo json_encode(['error' => $e->getMessage()]);
 }
+?>
