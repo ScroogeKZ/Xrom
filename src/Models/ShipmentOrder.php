@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use PDO;
+use PDOException;
+use Exception;
+
 require_once __DIR__ . '/../../config/database.php';
 
 class ShipmentOrder {
@@ -13,13 +17,13 @@ class ShipmentOrder {
     
     public function create($data) {
         $sql = "INSERT INTO shipment_orders (
-            order_type, pickup_city, pickup_address, pickup_ready_time, pickup_contact_person, pickup_contact_phone,
-            cargo_type, cargo_weight, cargo_dimensions, cargo_value, destination_city, delivery_address,
-            delivery_method, desired_arrival_date, recipient_name, recipient_contact, recipient_phone, notes, comment, photo_path, status
+            order_type, pickup_city, pickup_address, pickup_ready_time, contact_name, contact_phone,
+            cargo_type, weight, dimensions, destination_city, delivery_address,
+            delivery_method, desired_arrival_date, recipient_contact, recipient_phone, notes, comment, photo_path, status
         ) VALUES (
-            :order_type, :pickup_city, :pickup_address, :pickup_ready_time, :pickup_contact_person, :pickup_contact_phone,
-            :cargo_type, :cargo_weight, :cargo_dimensions, :cargo_value, :destination_city, :delivery_address,
-            :delivery_method, :desired_arrival_date, :recipient_name, :recipient_contact, :recipient_phone, :notes, :comment, :photo_path, :status
+            :order_type, :pickup_city, :pickup_address, :pickup_ready_time, :contact_name, :contact_phone,
+            :cargo_type, :weight, :dimensions, :destination_city, :delivery_address,
+            :delivery_method, :desired_arrival_date, :recipient_contact, :recipient_phone, :notes, :comment, :photo_path, :status
         ) RETURNING *";
         
         try {
@@ -31,20 +35,18 @@ class ShipmentOrder {
                 ':order_type' => $data['order_type'],
                 ':pickup_city' => $data['pickup_city'] ?? null,
                 ':pickup_address' => $data['pickup_address'],
-                ':pickup_ready_time' => $data['pickup_ready_time'],
-                ':pickup_contact_person' => $data['pickup_contact_person'],
-                ':pickup_contact_phone' => $data['pickup_contact_phone'],
+                ':pickup_ready_time' => $data['ready_time'],
+                ':contact_name' => $data['contact_name'],
+                ':contact_phone' => $data['contact_phone'],
                 ':cargo_type' => $data['cargo_type'],
-                ':cargo_weight' => $data['cargo_weight'] ? floatval($data['cargo_weight']) : null,
-                ':cargo_dimensions' => $data['cargo_dimensions'],
-                ':cargo_value' => $data['cargo_value'] ? floatval($data['cargo_value']) : null,
+                ':weight' => $data['weight'] ? floatval($data['weight']) : null,
+                ':dimensions' => $data['dimensions'],
                 ':destination_city' => $data['destination_city'] ?? null,
-                ':delivery_address' => $data['delivery_address'],
+                ':delivery_address' => $data['delivery_address'] ?? null,
                 ':delivery_method' => $data['delivery_method'] ?? null,
                 ':desired_arrival_date' => $data['desired_arrival_date'] ?? null,
-                ':recipient_name' => $data['recipient_name'],
-                ':recipient_contact' => $data['recipient_contact'],
-                ':recipient_phone' => $data['recipient_phone'],
+                ':recipient_contact' => $data['recipient_contact'] ?? null,
+                ':recipient_phone' => $data['recipient_phone'] ?? null,
                 ':notes' => $data['notes'] ?? null,
                 ':comment' => $data['comment'] ?? null,
                 ':photo_path' => $data['photo_path'] ?? null,
@@ -135,7 +137,7 @@ class ShipmentOrder {
         $allowedFields = [
             'order_type', 'pickup_address', 'ready_time', 'cargo_type', 'weight', 'dimensions',
             'contact_name', 'contact_phone', 'notes', 'pickup_city', 'destination_city',
-            'delivery_address', 'delivery_method', 'desired_arrival_date', 'status'
+            'delivery_address', 'delivery_method', 'desired_arrival_date', 'status', 'shipping_cost'
         ];
         
         foreach ($allowedFields as $field) {

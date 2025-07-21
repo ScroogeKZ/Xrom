@@ -19,7 +19,7 @@ class Auth {
             $userModel = new User();
             $user = $userModel->findByUsername($username);
             
-            if ($user && $userModel->verifyPassword($password, $user['password_hash'])) {
+            if ($user && $userModel->verifyPassword($password, $user['password'])) {
                 self::startSession();
                 $_SESSION['admin_logged_in'] = true;
                 $_SESSION['user_id'] = $user['id'];

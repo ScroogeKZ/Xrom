@@ -42,30 +42,27 @@ $orders = $orderModel->getAll($filters);
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <nav class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" class="p-2 rounded-lg">
-                        <img src="/assets/logo.png" alt="Хром-KZ" class="h-8 w-8 filter brightness-0 invert" onerror="this.style.display='none'">
-                    </div>
+            <div class="flex justify-between items-center py-3">
+                <div class="flex items-center space-x-3">
+                    <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6" onerror="this.style.display='none'">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-800">Хром-KZ Админ</h1>
-                        <p class="text-sm text-gray-600">Управление заказами</p>
+                        <h1 class="text-lg font-medium text-gray-900">Админ панель</h1>
                     </div>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="/admin/dashboard.php" class="text-gray-600 hover:text-blue-600 transition-colors">Дашборд</a>
-                    <a href="/admin/users.php" class="text-gray-600 hover:text-blue-600 transition-colors">Пользователи</a>
-                    <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Главная</a>
-                    <a href="/admin/logout.php" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">Выйти</a>
+                    <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
+                    <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
+                    <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-8">Управление заказами</h1>
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <h1 class="text-xl font-medium text-gray-900 mb-6">Заказы</h1>
         
         <?php if (isset($success)): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
@@ -79,109 +76,98 @@ $orders = $orderModel->getAll($filters);
             </div>
         <?php endif; ?>
         
-        <!-- Filters -->
         <!-- Telegram Status -->
-        <div class="bg-white p-4 rounded-lg shadow-lg mb-6">
+        <div class="bg-white border border-gray-200 p-4 mb-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-semibold">Статус Telegram уведомлений</h3>
-                    <p class="text-sm text-gray-600">
+                    <h3 class="text-sm font-medium text-gray-900">Telegram</h3>
+                    <p class="text-xs text-gray-500">
                         <?php if ($telegramService->isConfigured()): ?>
-                            <span class="text-green-600">✓ Telegram настроен и работает</span>
+                            <span class="text-green-600">Настроен</span>
                         <?php else: ?>
-                            <span class="text-red-600">✗ Telegram не настроен</span>
+                            <span class="text-red-600">Не настроен</span>
                         <?php endif; ?>
                     </p>
                 </div>
-                <?php if (!$telegramService->isConfigured()): ?>
-                    <div class="text-sm text-gray-500">
-                        <p>Для настройки уведомлений нужны:</p>
-                        <p>• TELEGRAM_BOT_TOKEN</p>
-                        <p>• TELEGRAM_CHAT_ID</p>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
         
-        <!-- Enhanced Filters and Search -->
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Поиск и фильтрация</h2>
-                <div class="flex space-x-3">
-                    <button onclick="toggleBulkActions()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                        📋 Массовые действия
+        <!-- Filters -->
+        <div class="bg-white border border-gray-200 p-4 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-medium text-gray-900">Фильтры</h2>
+                <div class="flex space-x-2">
+                    <button onclick="toggleBulkActions()" class="bg-gray-900 text-white text-xs px-3 py-1.5 hover:bg-gray-800">
+                        Массовые действия
                     </button>
-                    <button onclick="exportOrders()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        📊 Экспорт
+                    <button onclick="exportOrders()" class="bg-gray-900 text-white text-xs px-3 py-1.5 hover:bg-gray-800">
+                        Экспорт
                     </button>
                 </div>
             </div>
             
             <form method="GET" class="grid md:grid-cols-5 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">🔍 Поиск</label>
-                    <input type="text" name="search" placeholder="Поиск по имени, телефону, адресу..."
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Поиск</label>
+                    <input type="text" name="search" placeholder="Имя, телефон, адрес..."
                            value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full text-sm px-3 py-1.5 border border-gray-300 focus:outline-none focus:border-gray-400">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">📅 От даты</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">От даты</label>
                     <input type="date" name="date_from" value="<?php echo htmlspecialchars($_GET['date_from'] ?? ''); ?>"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full text-sm px-3 py-1.5 border border-gray-300 focus:outline-none focus:border-gray-400">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">📅 До даты</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">До даты</label>
                     <input type="date" name="date_to" value="<?php echo htmlspecialchars($_GET['date_to'] ?? ''); ?>"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full text-sm px-3 py-1.5 border border-gray-300 focus:outline-none focus:border-gray-400">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">🚚 Тип</label>
-                    <select name="order_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Все типы</option>
-                        <option value="astana" <?php echo ($_GET['order_type'] ?? '') === 'astana' ? 'selected' : ''; ?>>🏙️ Астана</option>
-                        <option value="regional" <?php echo ($_GET['order_type'] ?? '') === 'regional' ? 'selected' : ''; ?>>🌍 Межгородские</option>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Тип</label>
+                    <select name="order_type" class="w-full text-sm px-3 py-1.5 border border-gray-300 focus:outline-none focus:border-gray-400">
+                        <option value="">Все</option>
+                        <option value="astana" <?php echo ($_GET['order_type'] ?? '') === 'astana' ? 'selected' : ''; ?>>Астана</option>
+                        <option value="regional" <?php echo ($_GET['order_type'] ?? '') === 'regional' ? 'selected' : ''; ?>>Межгород</option>
                     </select>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">📊 Статус</label>
-                    <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Все статусы</option>
-                        <option value="new" <?php echo ($_GET['status'] ?? '') === 'new' ? 'selected' : ''; ?>>🆕 Новые</option>
-                        <option value="processing" <?php echo ($_GET['status'] ?? '') === 'processing' ? 'selected' : ''; ?>>⏳ В обработке</option>
-                        <option value="completed" <?php echo ($_GET['status'] ?? '') === 'completed' ? 'selected' : ''; ?>>✅ Завершенные</option>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Статус</label>
+                    <select name="status" class="w-full text-sm px-3 py-1.5 border border-gray-300 focus:outline-none focus:border-gray-400">
+                        <option value="">Все</option>
+                        <option value="new" <?php echo ($_GET['status'] ?? '') === 'new' ? 'selected' : ''; ?>>Новый</option>
+                        <option value="processing" <?php echo ($_GET['status'] ?? '') === 'processing' ? 'selected' : ''; ?>>В обработке</option>
+                        <option value="completed" <?php echo ($_GET['status'] ?? '') === 'completed' ? 'selected' : ''; ?>>Завершен</option>
                     </select>
                 </div>
                 
-                <div class="md:col-span-5 flex space-x-3">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
-                        🔍 Применить фильтры
+                <div class="md:col-span-5 flex space-x-2">
+                    <button type="submit" class="bg-gray-900 text-white text-sm px-4 py-1.5 hover:bg-gray-800">
+                        Применить
                     </button>
-                    <a href="/admin/panel.php" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center">
-                        🔄 Сбросить
+                    <a href="/admin/panel.php" class="bg-gray-300 text-gray-700 text-sm px-4 py-1.5 hover:bg-gray-400">
+                        Сбросить
                     </a>
-                    <button type="button" onclick="refreshOrders()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
-                        🔄 Обновить
-                    </button>
                 </div>
             </form>
         </div>
 
         <!-- Bulk Actions Bar (Hidden by default) -->
-        <div id="bulkActionsBar" class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6 hidden">
+        <div id="bulkActionsBar" class="bg-gray-100 border border-gray-200 p-3 mb-6 hidden">
             <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm font-medium">Выбрано заказов: <span id="selectedCount">0</span></span>
-                    <select id="bulkAction" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                        <option value="">Выберите действие</option>
-                        <option value="processing">Перевести в обработку</option>
-                        <option value="completed">Отметить завершенными</option>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs font-medium">Выбрано: <span id="selectedCount">0</span></span>
+                    <select id="bulkAction" class="px-2 py-1 border border-gray-300 text-xs">
+                        <option value="">Действие</option>
+                        <option value="processing">В обработку</option>
+                        <option value="completed">Завершить</option>
                         <option value="delete">Удалить</option>
                     </select>
-                    <button onclick="executeBulkAction()" class="bg-orange-600 text-white px-4 py-1 rounded text-sm hover:bg-orange-700">
+                    <button onclick="executeBulkAction()" class="bg-gray-900 text-white px-3 py-1 text-xs hover:bg-gray-800">
                         Выполнить
                     </button>
                 </div>
@@ -191,20 +177,16 @@ $orders = $orderModel->getAll($filters);
             </div>
         </div>
         
-        <!-- Enhanced Orders Table -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="px-6 py-4 bg-gray-50 border-b">
+        <!-- Orders Table -->
+        <div class="bg-white border border-gray-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold">Заказы (<?php echo count($orders); ?>)</h2>
+                    <h2 class="text-sm font-medium text-gray-900">Заказы (<?php echo count($orders); ?>)</h2>
                     <div class="flex space-x-2">
-                        <label class="flex items-center space-x-2 text-sm">
-                            <input type="checkbox" id="selectAllOrders" onchange="toggleAllOrders()" class="rounded border-gray-300">
+                        <label class="flex items-center space-x-2 text-xs">
+                            <input type="checkbox" id="selectAllOrders" onchange="toggleAllOrders()" class="border-gray-300">
                             <span>Выбрать все</span>
                         </label>
-                        <select onchange="changeTableView(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
-                            <option value="detailed">Подробный вид</option>
-                            <option value="compact">Компактный вид</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -213,93 +195,91 @@ $orders = $orderModel->getAll($filters);
                 <table class="min-w-full" id="ordersTable">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <input type="checkbox" id="headerCheckbox" onchange="toggleAllOrders()" class="rounded border-gray-300">
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                                <input type="checkbox" id="headerCheckbox" onchange="toggleAllOrders()" class="border-gray-300">
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100" onclick="sortTable('id')">
-                                ID 📊
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                                ID
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100" onclick="sortTable('type')">
-                                Тип 🚚
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                                Тип
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Маршрут 📍</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Груз 📦</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100" onclick="sortTable('contact')">
-                                Контакт 👤
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Маршрут</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Груз</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                                Контакт
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
-                                Статус 📊
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                                Статус
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100" onclick="sortTable('date')">
-                                Дата 📅
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                                Дата
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Действия ⚙️</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Действия</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php foreach ($orders as $order): ?>
-                            <tr class="hover:bg-gray-50 transition-colors order-row" data-order-id="<?php echo $order['id']; ?>">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" class="order-checkbox rounded border-gray-300" value="<?php echo $order['id']; ?>" onchange="updateSelectedCount()">
+                            <tr class="hover:bg-gray-50 order-row" data-order-id="<?php echo $order['id']; ?>">
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    <input type="checkbox" class="order-checkbox border-gray-300" value="<?php echo $order['id']; ?>" onchange="updateSelectedCount()">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
                                     <div class="flex items-center">
-                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold mr-2">
+                                        <span class="text-sm font-medium mr-2">
                                             #<?php echo $order['id']; ?>
                                         </span>
-                                        <button onclick="viewOrderDetails(<?php echo $order['id']; ?>)" class="text-blue-600 hover:text-blue-800 text-xs">
-                                            👁️ Детали
+                                        <button onclick="viewOrderDetails(<?php echo $order['id']; ?>)" class="text-gray-600 hover:text-gray-900 text-xs">
+                                            Детали
                                         </button>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                        <?php echo $order['order_type'] === 'astana' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'; ?>">
-                                        <?php echo $order['order_type'] === 'astana' ? '🏙️ Астана' : '🌍 Межгород'; ?>
+                                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700">
+                                        <?php echo $order['order_type'] === 'astana' ? 'Астана' : 'Межгород'; ?>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                                <td class="px-3 py-3 text-sm text-gray-500 max-w-xs">
                                     <?php if ($order['order_type'] === 'regional'): ?>
-                                        <div class="font-medium text-gray-900">
+                                        <div class="text-sm text-gray-900">
                                             <?php echo htmlspecialchars($order['pickup_city'] ?? 'Не указан'); ?> → <?php echo htmlspecialchars($order['destination_city'] ?? 'Не указан'); ?>
                                         </div>
                                     <?php else: ?>
-                                        <div class="font-medium text-gray-900">Астана</div>
+                                        <div class="text-sm text-gray-900">Астана</div>
                                     <?php endif; ?>
                                     <div class="text-xs text-gray-400 truncate">
-                                        📍 <?php echo htmlspecialchars(substr($order['pickup_address'], 0, 40)); ?>...
+                                        <?php echo htmlspecialchars(substr($order['pickup_address'], 0, 40)); ?>...
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500">
-                                    <div class="font-medium text-gray-900">
-                                        📦 <?php echo htmlspecialchars($order['cargo_type']); ?>
+                                <td class="px-3 py-3 text-sm text-gray-500">
+                                    <div class="text-sm text-gray-900">
+                                        <?php echo htmlspecialchars($order['cargo_type']); ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
-                                        ⚖️ <?php echo htmlspecialchars($order['cargo_weight'] ?? 'Не указан'); ?> кг
+                                        <?php echo htmlspecialchars($order['weight'] ?? 'Не указан'); ?> кг
                                     </div>
-                                    <?php if ($order['cargo_dimensions']): ?>
+                                    <?php if ($order['shipping_cost']): ?>
+                                        <div class="text-xs font-medium text-gray-700">
+                                            <?php echo number_format($order['shipping_cost'], 0, ',', ' '); ?> ₸
+                                        </div>
+                                    <?php else: ?>
                                         <div class="text-xs text-gray-400">
-                                            📏 <?php echo htmlspecialchars($order['cargo_dimensions']); ?>
+                                            Не указана
                                         </div>
                                     <?php endif; ?>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500">
-                                    <div class="font-medium text-gray-900">
-                                        👤 <?php echo htmlspecialchars($order['pickup_contact_person'] ?? 'Не указан'); ?>
+                                <td class="px-3 py-3 text-sm text-gray-500">
+                                    <div class="text-sm text-gray-900">
+                                        <?php echo htmlspecialchars($order['contact_name'] ?? 'Не указан'); ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
-                                        📞 <a href="tel:<?php echo htmlspecialchars($order['pickup_contact_phone'] ?? ''); ?>" class="hover:text-blue-600">
-                                            <?php echo htmlspecialchars($order['pickup_contact_phone'] ?? 'Не указан'); ?>
+                                        <a href="tel:<?php echo htmlspecialchars($order['contact_phone'] ?? ''); ?>" class="hover:text-gray-600">
+                                            <?php echo htmlspecialchars($order['contact_phone'] ?? 'Не указан'); ?>
                                         </a>
                                     </div>
-                                    <?php if ($order['pickup_ready_time']): ?>
-                                        <div class="text-xs text-gray-400">
-                                            ⏰ <?php echo htmlspecialchars($order['pickup_ready_time']); ?>
-                                        </div>
-                                    <?php endif; ?>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs 
                                         <?php 
                                         echo match($order['status']) {
                                             'new' => 'bg-blue-100 text-blue-800',
@@ -310,36 +290,32 @@ $orders = $orderModel->getAll($filters);
                                         ?>">
                                         <?php 
                                         echo match($order['status']) {
-                                            'new' => '🆕 Новый',
-                                            'processing' => '⏳ В обработке',
-                                            'completed' => '✅ Завершен',
+                                            'new' => 'Новый',
+                                            'processing' => 'В обработке',
+                                            'completed' => 'Завершен',
                                             default => $order['status']
                                         };
                                         ?>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <div class="font-medium">
-                                        📅 <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
+                                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="text-sm">
+                                        <?php echo date('d.m.Y', strtotime($order['created_at'])); ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
-                                        🕐 <?php echo date('H:i', strtotime($order['created_at'])); ?>
+                                        <?php echo date('H:i', strtotime($order['created_at'])); ?>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <td class="px-3 py-3 whitespace-nowrap text-sm">
                                     <div class="flex items-center space-x-2">
-                                        <form method="POST" class="inline">
-                                            <input type="hidden" name="action" value="update_status">
-                                            <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
-                                            <select name="status" onchange="updateOrderStatus(this, <?php echo $order['id']; ?>)" 
-                                                    class="text-xs border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                                <option value="new" <?php echo $order['status'] === 'new' ? 'selected' : ''; ?>>🆕 Новый</option>
-                                                <option value="processing" <?php echo $order['status'] === 'processing' ? 'selected' : ''; ?>>⏳ В обработке</option>
-                                                <option value="completed" <?php echo $order['status'] === 'completed' ? 'selected' : ''; ?>>✅ Завершен</option>
-                                            </select>
-                                        </form>
+                                        <select onchange="updateOrderStatus(this, <?php echo $order['id']; ?>)" 
+                                                class="text-xs border border-gray-300 px-2 py-1 focus:outline-none focus:border-gray-400">
+                                            <option value="new" <?php echo $order['status'] === 'new' ? 'selected' : ''; ?>>Новый</option>
+                                            <option value="processing" <?php echo $order['status'] === 'processing' ? 'selected' : ''; ?>>В обработке</option>
+                                            <option value="completed" <?php echo $order['status'] === 'completed' ? 'selected' : ''; ?>>Завершен</option>
+                                        </select>
                                         <button onclick="deleteOrder(<?php echo $order['id']; ?>)" class="text-red-600 hover:text-red-800 text-xs">
-                                            🗑️
+                                            Удалить
                                         </button>
                                     </div>
                                 </td>
@@ -491,6 +467,11 @@ $orders = $orderModel->getAll($filters);
                                     <label class="block text-sm font-medium text-gray-700">Готов к отправке:</label>
                                     <input type="time" name="ready_time" value="${order.ready_time || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
                                     <span class="view-field">${order.ready_time || 'Не указано'}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">💰 Стоимость отгрузки (тенге):</label>
+                                    <input type="number" step="0.01" min="0" name="shipping_cost" value="${order.shipping_cost || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500" placeholder="0.00">
+                                    <span class="view-field">${order.shipping_cost ? order.shipping_cost + ' ₸' : 'Не указана'}</span>
                                 </div>
                             </div>
                         </div>
@@ -692,6 +673,135 @@ $orders = $orderModel->getAll($filters);
                 closeOrderDetails();
             }
         });
+
+        // Missing functions for bulk actions and export
+        function toggleBulkActions() {
+            const bulkActionsPanel = document.getElementById('bulkActionsPanel');
+            if (bulkActionsPanel) {
+                bulkActionsPanel.classList.toggle('hidden');
+            }
+        }
+
+        function exportOrders() {
+            // Get current filters from URL parameters or form inputs
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = new URLSearchParams();
+            
+            // Copy existing filters
+            urlParams.forEach((value, key) => {
+                if (value && key !== 'page') {
+                    params.append(key, value);
+                }
+            });
+            
+            // Add export parameter
+            params.append('action', 'export');
+            params.append('format', 'excel');
+            
+            // Create and trigger download
+            const downloadUrl = `/admin/export.php?${params.toString()}`;
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show user feedback
+            alert('Экспорт Excel файла начат. Файл будет загружен автоматически.');
+        }
+
+        function executeBulkAction() {
+            const selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked')).map(cb => cb.value);
+            const action = document.getElementById('bulkAction').value;
+            
+            if (!action) {
+                alert('Выберите действие');
+                return;
+            }
+            
+            if (selectedOrders.length === 0) {
+                alert('Выберите заказы');
+                return;
+            }
+            
+            if (confirm(`Применить действие "${action}" к ${selectedOrders.length} заказам?`)) {
+                fetch('/admin/api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'bulk_action',
+                        bulk_action: action,
+                        order_ids: selectedOrders
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Действие выполнено успешно');
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка выполнения действия');
+                });
+            }
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+            updateSelectedCount();
+            toggleBulkActions();
+        }
+
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('.order-checkbox:checked').length;
+            const countElement = document.getElementById('selectedCount');
+            if (countElement) {
+                countElement.textContent = selectedCount;
+            }
+            
+            // Show/hide bulk actions panel
+            const bulkActionsPanel = document.getElementById('bulkActionsPanel');
+            if (bulkActionsPanel) {
+                if (selectedCount > 0) {
+                    bulkActionsPanel.classList.remove('hidden');
+                } else {
+                    bulkActionsPanel.classList.add('hidden');
+                }
+            }
+        }
+
+        function toggleAllOrders() {
+            const headerCheckbox = document.getElementById('headerCheckbox') || document.getElementById('selectAllOrders');
+            const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+            
+            orderCheckboxes.forEach(cb => {
+                cb.checked = headerCheckbox.checked;
+            });
+            
+            updateSelectedCount();
+        }
+
+        function sortTable(column) {
+            // Basic table sorting functionality
+            console.log('Sorting by:', column);
+            // Implementation would require server-side sorting or client-side table manipulation
+        }
+
+        function changeTableView(view) {
+            const table = document.getElementById('ordersTable');
+            if (view === 'compact') {
+                table.classList.add('compact-view');
+            } else {
+                table.classList.remove('compact-view');
+            }
+        }
     </script>
 </body>
 </html>
