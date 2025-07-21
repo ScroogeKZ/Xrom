@@ -119,6 +119,7 @@ $currentUser = Auth::getCurrentUser();
                 <div class="flex items-center space-x-4">
                     <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
                     <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
+                    <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
                     <span class="text-sm text-gray-600"><?php echo htmlspecialchars($currentUser['username']); ?></span>
                     <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>

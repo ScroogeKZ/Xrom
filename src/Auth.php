@@ -6,6 +6,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/Models/User.php';
 
 use App\Models\User;
+use Exception;
 
 class Auth {
     public static function startSession() {

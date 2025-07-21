@@ -37,23 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'order_type' => 'regional',
             'pickup_city' => $_POST['pickup_city'] ?? '',
             'pickup_address' => $_POST['pickup_address'] ?? '',
-            'pickup_ready_time' => $_POST['pickup_ready_time'] ?? '',
-            'pickup_contact_person' => $_POST['pickup_contact_person'] ?? '',
-            'pickup_contact_phone' => $_POST['pickup_contact_phone'] ?? '',
+            'ready_time' => $_POST['ready_time'] ?? '',
+            'contact_name' => $_POST['contact_name'] ?? '',
+            'contact_phone' => $_POST['contact_phone'] ?? '',
             'cargo_type' => $_POST['cargo_type'] ?? '',
-            'cargo_weight' => $_POST['cargo_weight'] ?? '',
-            'cargo_dimensions' => $_POST['cargo_dimensions'] ?? '',
-            'cargo_value' => $_POST['cargo_value'] ?? '',
+            'weight' => $_POST['weight'] ?? '',
+            'dimensions' => $_POST['dimensions'] ?? '',
             'destination_city' => $_POST['destination_city'] ?? '',
             'delivery_address' => $_POST['delivery_address'] ?? '',
             'delivery_method' => $_POST['delivery_method'] ?? '',
             'desired_arrival_date' => $_POST['desired_arrival_date'] ?? '',
-            'recipient_name' => $_POST['recipient_name'] ?? '',
             'recipient_contact' => $_POST['recipient_contact'] ?? '',
             'recipient_phone' => $_POST['recipient_phone'] ?? '',
             'notes' => $_POST['notes'] ?? '',
-            'comment' => $_POST['comment'] ?? '',
-            'photo_path' => $photoPath
+            'comment' => $_POST['comment'] ?? ''
         ];
         
         $result = $shipmentOrder->create($data);

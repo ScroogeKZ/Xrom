@@ -17,13 +17,13 @@ class ShipmentOrder {
     
     public function create($data) {
         $sql = "INSERT INTO shipment_orders (
-            order_type, pickup_city, pickup_address, pickup_ready_time, contact_name, contact_phone,
+            order_type, pickup_city, pickup_address, ready_time, contact_name, contact_phone,
             cargo_type, weight, dimensions, destination_city, delivery_address,
-            delivery_method, desired_arrival_date, recipient_contact, recipient_phone, notes, comment, photo_path, status
+            delivery_method, desired_arrival_date, recipient_contact, recipient_phone, notes, comment, status
         ) VALUES (
-            :order_type, :pickup_city, :pickup_address, :pickup_ready_time, :contact_name, :contact_phone,
+            :order_type, :pickup_city, :pickup_address, :ready_time, :contact_name, :contact_phone,
             :cargo_type, :weight, :dimensions, :destination_city, :delivery_address,
-            :delivery_method, :desired_arrival_date, :recipient_contact, :recipient_phone, :notes, :comment, :photo_path, :status
+            :delivery_method, :desired_arrival_date, :recipient_contact, :recipient_phone, :notes, :comment, :status
         ) RETURNING *";
         
         try {
@@ -35,7 +35,7 @@ class ShipmentOrder {
                 ':order_type' => $data['order_type'],
                 ':pickup_city' => $data['pickup_city'] ?? null,
                 ':pickup_address' => $data['pickup_address'],
-                ':pickup_ready_time' => $data['ready_time'],
+                ':ready_time' => $data['ready_time'],
                 ':contact_name' => $data['contact_name'],
                 ':contact_phone' => $data['contact_phone'],
                 ':cargo_type' => $data['cargo_type'],
@@ -49,7 +49,6 @@ class ShipmentOrder {
                 ':recipient_phone' => $data['recipient_phone'] ?? null,
                 ':notes' => $data['notes'] ?? null,
                 ':comment' => $data['comment'] ?? null,
-                ':photo_path' => $data['photo_path'] ?? null,
                 ':status' => $status
             ]);
             

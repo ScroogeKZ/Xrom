@@ -40,8 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'recipient_contact' => $_POST['recipient_contact'] ?? '',
             'recipient_phone' => $_POST['recipient_phone'] ?? '',
             'notes' => $_POST['notes'] ?? '',
-            'comment' => $_POST['comment'] ?? '',
-            'photo_path' => $photoPath
+            'comment' => $_POST['comment'] ?? ''
         ];
         
         $result = $shipmentOrder->create($data);

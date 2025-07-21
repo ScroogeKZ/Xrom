@@ -39,41 +39,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Вход в систему - Хром-KZ Логистика</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+<body class="bg-white min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-sm mx-auto">
         <div class="text-center mb-8">
-            <img src="/assets/logo.png" alt="Хром-KZ" class="h-16 w-16 mx-auto mb-4" onerror="this.style.display='none'">
-            <h1 class="text-2xl font-bold text-gray-800">Хром-KZ Логистика</h1>
-            <p class="text-gray-600">Вход в систему управления</p>
+            <img src="/assets/logo.png" alt="Хром-KZ" class="h-8 w-8 mx-auto mb-4" onerror="this.style.display='none'">
+            <h1 class="text-xl font-medium text-gray-900 mb-1">Хром-KZ</h1>
+            <p class="text-sm text-gray-500">Вход в систему</p>
         </div>
         
         <?php if ($error): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <div class="bg-red-50 text-red-700 px-3 py-2 text-sm mb-6 border border-red-200">
                 <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
         
-        <form method="POST" class="space-y-6">
+        <form method="POST" class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Логин</label>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Логин</label>
                 <input type="text" name="username" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                       class="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:border-gray-900">
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Пароль</label>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Пароль</label>
                 <input type="password" name="password" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                       class="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:border-gray-900">
             </div>
             
             <button type="submit" 
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full bg-gray-900 text-white py-2 px-4 text-sm hover:bg-gray-800 focus:outline-none mt-6">
                 Войти
             </button>
         </form>
         
         <div class="mt-6 text-center">
-            <a href="/" class="text-blue-600 hover:text-blue-800">← Вернуться на главную</a>
+            <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">← Главная</a>
         </div>
     </div>
 </body>

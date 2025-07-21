@@ -53,6 +53,7 @@ $orders = $orderModel->getAll($filters);
                 </div>
                 <div class="flex space-x-4">
                     <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
+                    <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
                     <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
                     <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
@@ -65,46 +66,52 @@ $orders = $orderModel->getAll($filters);
         <h1 class="text-xl font-medium text-gray-900 mb-6">Заказы</h1>
         
         <?php if (isset($success)): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+            <div class="bg-green-50 text-green-800 px-3 py-2 text-sm mb-4 border border-green-200">
                 <?php echo htmlspecialchars($success); ?>
             </div>
         <?php endif; ?>
         
         <?php if (isset($error)): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <div class="bg-red-50 text-red-800 px-3 py-2 text-sm mb-4 border border-red-200">
                 <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
         
-        <!-- Telegram Status -->
-        <div class="bg-white border border-gray-200 p-4 mb-6">
+        <!-- Status Bar -->
+        <div class="bg-white border border-gray-200 px-4 py-3 mb-6">
             <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-sm font-medium text-gray-900">Telegram</h3>
-                    <p class="text-xs text-gray-500">
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <span class="text-xs text-gray-600">Telegram:</span>
                         <?php if ($telegramService->isConfigured()): ?>
-                            <span class="text-green-600">Настроен</span>
+                            <span class="text-xs text-green-600">Активен</span>
                         <?php else: ?>
-                            <span class="text-red-600">Не настроен</span>
+                            <span class="text-xs text-red-600">Неактивен</span>
                         <?php endif; ?>
-                    </p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-600">Всего заказов: <?php echo count($orders); ?></span>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Filters -->
-        <div class="bg-white border border-gray-200 p-4 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-sm font-medium text-gray-900">Фильтры</h2>
-                <div class="flex space-x-2">
-                    <button onclick="toggleBulkActions()" class="bg-gray-900 text-white text-xs px-3 py-1.5 hover:bg-gray-800">
-                        Массовые действия
-                    </button>
-                    <button onclick="exportOrders()" class="bg-gray-900 text-white text-xs px-3 py-1.5 hover:bg-gray-800">
-                        Экспорт
-                    </button>
+        <div class="bg-white border border-gray-200 mb-6">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-sm font-medium text-gray-900">Фильтры и поиск</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="toggleBulkActions()" class="text-xs px-3 py-1.5 text-gray-700 border border-gray-300 hover:border-gray-400">
+                            Массовые действия
+                        </button>
+                        <button onclick="exportOrders()" class="text-xs px-3 py-1.5 bg-gray-900 text-white hover:bg-gray-800">
+                            Экспорт
+                        </button>
+                    </div>
                 </div>
             </div>
+            <div class="p-4">
             
             <form method="GET" class="grid md:grid-cols-5 gap-4">
                 <div class="md:col-span-2">
@@ -336,20 +343,18 @@ $orders = $orderModel->getAll($filters);
     </div>
 
     <!-- Modal for order details -->
-    <div id="orderDetailsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div class="mt-3">
-                <div class="flex items-center justify-between pb-3">
-                    <h3 class="text-lg font-medium text-gray-900">Детали заказа</h3>
-                    <button onclick="closeOrderDetails()" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+    <div id="orderDetailsModal" class="hidden fixed inset-0 bg-black bg-opacity-30 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border border-gray-200 w-11/12 md:w-3/4 lg:w-1/2 bg-white">
+            <div class="border-b border-gray-200 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-medium text-gray-900">Детали заказа</h3>
+                    <button onclick="closeOrderDetails()" class="text-gray-400 hover:text-gray-600 text-sm">
+                        ✕
                     </button>
                 </div>
-                <div id="orderDetailsContent" class="mt-2 px-7 py-3">
-                    <!-- Order details will be loaded here -->
-                </div>
+            </div>
+            <div id="orderDetailsContent" class="p-4">
+                <!-- Order details will be loaded here -->
             </div>
         </div>
     </div>
@@ -386,56 +391,56 @@ $orders = $orderModel->getAll($filters);
                     <input type="hidden" name="order_id" value="${order.id}">
                     
                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-xl font-bold text-gray-800">Заказ #${order.id} - ${orderTypeText}</h4>
+                        <h4 class="text-sm font-medium text-gray-900">Заказ #${order.id} - ${orderTypeText}</h4>
                         <div class="flex gap-2">
-                            <button type="button" onclick="toggleEditMode()" id="editButton" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-                                ✏️ Редактировать
+                            <button type="button" onclick="toggleEditMode()" id="editButton" class="bg-gray-900 text-white px-3 py-1.5 text-xs hover:bg-gray-800">
+                                Редактировать
                             </button>
-                            <button type="submit" id="saveButton" class="hidden bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
-                                💾 Сохранить
+                            <button type="submit" id="saveButton" class="hidden bg-gray-900 text-white px-3 py-1.5 text-xs hover:bg-gray-800">
+                                Сохранить
                             </button>
-                            <button type="button" onclick="cancelEdit()" id="cancelButton" class="hidden bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors">
-                                ❌ Отмена
+                            <button type="button" onclick="cancelEdit()" id="cancelButton" class="hidden text-gray-600 hover:text-gray-900 px-3 py-1.5 text-xs border border-gray-300">
+                                Отмена
                             </button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-blue-900 mb-3">Основная информация</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white border border-gray-200 p-3">
+                            <h4 class="text-xs font-medium text-gray-900 mb-3">Основная информация</h4>
                             <div class="space-y-2">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Статус:</label>
-                                    <select name="status" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
-                                        <option value="new" ${order.status === 'new' ? 'selected' : ''}>🆕 Новый</option>
-                                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>⏳ В обработке</option>
-                                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>✅ Завершен</option>
-                                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ Отменен</option>
+                                    <label class="block text-xs font-medium text-gray-700">Статус:</label>
+                                    <select name="status" class="edit-field hidden w-full mt-1 text-sm border border-gray-300 px-2 py-1 focus:outline-none focus:border-gray-400">
+                                        <option value="new" ${order.status === 'new' ? 'selected' : ''}>Новый</option>
+                                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В обработке</option>
+                                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Завершен</option>
+                                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменен</option>
                                     </select>
-                                    <span class="view-field">${{
-                                        'new': '🆕 Новый',
-                                        'processing': '⏳ В обработке',
-                                        'completed': '✅ Завершен',
-                                        'cancelled': '❌ Отменен'
+                                    <span class="view-field text-sm">${{
+                                        'new': 'Новый',
+                                        'processing': 'В обработке',
+                                        'completed': 'Завершен',
+                                        'cancelled': 'Отменен'
                                     }[order.status] || order.status}</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Тип заказа:</label>
-                                    <span class="view-field">${orderTypeText}</span>
+                                    <label class="block text-xs font-medium text-gray-700">Тип заказа:</label>
+                                    <span class="view-field text-sm">${orderTypeText}</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Дата создания:</label>
-                                    <span class="view-field">${new Date(order.created_at).toLocaleString('ru-RU')}</span>
+                                    <label class="block text-xs font-medium text-gray-700">Дата создания:</label>
+                                    <span class="view-field text-sm">${new Date(order.created_at).toLocaleString('ru-RU')}</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-green-900 mb-3">Груз</h4>
+                        <div class="bg-white border border-gray-200 p-3">
+                            <h4 class="text-xs font-medium text-gray-900 mb-3">Груз</h4>
                             <div class="space-y-2">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Тип груза:</label>
-                                    <select name="cargo_type" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                                    <label class="block text-xs font-medium text-gray-700">Тип груза:</label>
+                                    <select name="cargo_type" class="edit-field hidden w-full mt-1 text-sm border border-gray-300 px-2 py-1 focus:outline-none focus:border-gray-400">
                                         <option value="">Выберите тип груза</option>
                                         <option value="лифтовые порталы" ${order.cargo_type === 'лифтовые порталы' ? 'selected' : ''}>Лифтовые порталы</option>
                                         <option value="т-образные профили" ${order.cargo_type === 'т-образные профили' ? 'selected' : ''}>Т-образные профили</option>
@@ -451,22 +456,22 @@ $orders = $orderModel->getAll($filters);
                                         <option value="образцы" ${order.cargo_type === 'образцы' ? 'selected' : ''}>Образцы</option>
                                         <option value="другое" ${order.cargo_type === 'другое' ? 'selected' : ''}>Другое</option>
                                     </select>
-                                    <span class="view-field">${order.cargo_type || 'Не указан'}</span>
+                                    <span class="view-field text-sm">${order.cargo_type || 'Не указан'}</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Вес (кг):</label>
-                                    <input type="number" step="0.1" name="weight" value="${order.weight || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
-                                    <span class="view-field">${order.weight || 'Не указан'} кг</span>
+                                    <label class="block text-xs font-medium text-gray-700">Вес (кг):</label>
+                                    <input type="number" step="0.1" name="weight" value="${order.weight || ''}" class="edit-field hidden w-full mt-1 text-sm border border-gray-300 px-2 py-1 focus:outline-none focus:border-gray-400">
+                                    <span class="view-field text-sm">${order.weight || 'Не указан'} кг</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Габариты:</label>
-                                    <input type="text" name="dimensions" value="${order.dimensions || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
-                                    <span class="view-field">${order.dimensions || 'Не указаны'}</span>
+                                    <label class="block text-xs font-medium text-gray-700">Габариты:</label>
+                                    <input type="text" name="dimensions" value="${order.dimensions || ''}" class="edit-field hidden w-full mt-1 text-sm border border-gray-300 px-2 py-1 focus:outline-none focus:border-gray-400">
+                                    <span class="view-field text-sm">${order.dimensions || 'Не указаны'}</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Готов к отправке:</label>
-                                    <input type="time" name="ready_time" value="${order.ready_time || ''}" class="edit-field hidden w-full mt-1 border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500">
-                                    <span class="view-field">${order.ready_time || 'Не указано'}</span>
+                                    <label class="block text-xs font-medium text-gray-700">Готов к отправке:</label>
+                                    <input type="time" name="ready_time" value="${order.ready_time || ''}" class="edit-field hidden w-full mt-1 text-sm border border-gray-300 px-2 py-1 focus:outline-none focus:border-gray-400">
+                                    <span class="view-field text-sm">${order.ready_time || 'Не указано'}</span>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">💰 Стоимость отгрузки (тенге):</label>

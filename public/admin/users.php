@@ -75,10 +75,11 @@ try {
                     </div>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="/admin/dashboard.php" class="text-gray-600 hover:text-blue-600 transition-colors">Дашборд</a>
-                    <a href="/admin/panel.php" class="text-gray-600 hover:text-blue-600 transition-colors">Заказы</a>
-                    <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Главная</a>
-                    <a href="/admin/logout.php" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">Выйти</a>
+                    <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
+                    <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
+                    <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
+                    <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
                 </div>
             </div>
         </div>
