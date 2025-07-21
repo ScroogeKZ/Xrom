@@ -58,18 +58,20 @@ $currentUser = Auth::getCurrentUser();
             <div class="flex justify-between items-center py-3">
                 <div class="flex items-center space-x-3">
                     <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6" onerror="this.style.display='none'">
-                    <h1 class="text-lg font-medium text-gray-900">Поиск заказов</h1>
+                    <div>
+                        <h1 class="text-lg font-medium text-gray-900">Поиск заказов</h1>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
+                <div class="flex space-x-4">
                     <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
                     <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
                     <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
-                    <a href="/admin/calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/quick_actions.php" class="text-sm text-gray-600 hover:text-gray-900">Быстрые действия</a>
+                    <a href="/admin/cost_calculator.php" class="text-sm text-gray-600 hover:text-gray-900">Калькулятор</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
-                    <span class="text-sm text-gray-500">|</span>
-                    <span class="text-sm text-gray-700"><?php echo htmlspecialchars($currentUser['username']); ?></span>
-                    <a href="/admin/logout.php" class="text-sm text-red-600 hover:text-red-800">Выход</a>
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
+                    <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
                 </div>
             </div>
         </div>

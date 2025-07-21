@@ -116,13 +116,15 @@ $currentUser = Auth::getCurrentUser();
                         <h1 class="text-lg font-medium text-gray-900">Дашборд</h1>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
+                <div class="flex space-x-4">
                     <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
                     <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
-                    <a href="/admin/calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/quick_actions.php" class="text-sm text-gray-600 hover:text-gray-900">Быстрые действия</a>
+                    <a href="/admin/cost_calculator.php" class="text-sm text-gray-600 hover:text-gray-900">Калькулятор</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
-                    <span class="text-sm text-gray-600"><?php echo htmlspecialchars($currentUser['username']); ?></span>
+                    <a href="/admin/search.php" class="text-sm text-gray-600 hover:text-gray-900">Поиск</a>
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
                     <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
                 </div>
             </div>

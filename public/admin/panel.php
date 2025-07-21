@@ -54,7 +54,9 @@ $orders = $orderModel->getAll($filters);
                 <div class="flex space-x-4">
                     <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
                     <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
-                    <a href="/admin/calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/quick_actions.php" class="text-sm text-gray-600 hover:text-gray-900">Быстрые действия</a>
+                    <a href="/admin/cost_calculator.php" class="text-sm text-gray-600 hover:text-gray-900">Калькулятор</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
                     <a href="/admin/search.php" class="text-sm text-gray-600 hover:text-gray-900">Поиск</a>
                     <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
@@ -267,7 +269,7 @@ $orders = $orderModel->getAll($filters);
                                     <div class="text-xs text-gray-400">
                                         <?php echo htmlspecialchars($order['weight'] ?? 'Не указан'); ?> кг
                                     </div>
-                                    <?php if ($order['shipping_cost']): ?>
+                                    <?php if (isset($order['shipping_cost']) && $order['shipping_cost']): ?>
                                         <div class="text-xs font-medium text-gray-700">
                                             <?php echo number_format($order['shipping_cost'], 0, ',', ' '); ?> ₸
                                         </div>

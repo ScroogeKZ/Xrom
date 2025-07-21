@@ -135,15 +135,18 @@ $regionalStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="flex items-center space-x-3">
                     <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6" onerror="this.style.display='none'">
                     <div>
-                        <h1 class="text-lg font-medium text-gray-900">Отчеты отдела логистики</h1>
+                        <h1 class="text-lg font-medium text-gray-900">Отчеты</h1>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
-                    <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
+                <div class="flex space-x-4">
                     <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
+                    <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
+                    <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/quick_actions.php" class="text-sm text-gray-600 hover:text-gray-900">Быстрые действия</a>
+                    <a href="/admin/cost_calculator.php" class="text-sm text-gray-600 hover:text-gray-900">Калькулятор</a>
                     <a href="/admin/users.php" class="text-sm text-gray-600 hover:text-gray-900">Пользователи</a>
-                    <span class="text-sm text-gray-600"><?php echo htmlspecialchars($currentUser['username']); ?></span>
+                    <a href="/admin/search.php" class="text-sm text-gray-600 hover:text-gray-900">Поиск</a>
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
                     <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
                 </div>
             </div>

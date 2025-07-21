@@ -56,20 +56,32 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-white min-h-screen">
-    <!-- Minimal Header -->
-    <header class="border-b border-gray-200 bg-white">
-        <div class="max-w-6xl mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-3">
                 <div class="flex items-center space-x-3">
                     <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6" onerror="this.style.display='none'">
-                    <h1 class="text-lg font-medium text-gray-900">Пользователи</h1>
+                    <div>
+                        <h1 class="text-lg font-medium text-gray-900">Пользователи</h1>
+                    </div>
                 </div>
-                <a href="/admin/panel.php" class="text-gray-600 hover:text-gray-900 text-sm">← Назад</a>
+                <div class="flex space-x-4">
+                    <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
+                    <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
+                    <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
+                    <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
+                    <a href="/admin/quick_actions.php" class="text-sm text-gray-600 hover:text-gray-900">Быстрые действия</a>
+                    <a href="/admin/cost_calculator.php" class="text-sm text-gray-600 hover:text-gray-900">Калькулятор</a>
+                    <a href="/admin/search.php" class="text-sm text-gray-600 hover:text-gray-900">Поиск</a>
+                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
+                    <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-6">
         <!-- Messages -->
         <?php if ($success): ?>
             <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm mb-6">
@@ -149,6 +161,6 @@ try {
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 </body>
 </html>

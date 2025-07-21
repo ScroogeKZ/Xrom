@@ -61,6 +61,9 @@ class User {
     }
     
     public function verifyPassword($plainPassword, $hashedPassword) {
+        if ($hashedPassword === null) {
+            return false;
+        }
         return password_verify($plainPassword, $hashedPassword);
     }
     
