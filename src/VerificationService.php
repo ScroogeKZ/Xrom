@@ -63,27 +63,38 @@ class VerificationService {
     }
     
     public static function formatPhoneNumber($phone) {
-        // Очищаем номер от лишних символов
-        $cleaned = preg_replace('/[^0-9]/', '', $phone);
+        // Очищаем номер от лишних символов, кроме +
+        $cleaned = preg_replace('/[^0-9+]/', '', $phone);
         
-        // Добавляем +7 если номер начинается с 8
-        if (strlen($cleaned) == 11 && substr($cleaned, 0, 1) == '8') {
-            $cleaned = '7' . substr($cleaned, 1);
+        // Если номер начинается с 87, оставляем как есть
+        if (preg_match('/^87\d{9}$/', $cleaned)) {
+            return $cleaned;
         }
         
-        // Добавляем + если его нет
-        if (strlen($cleaned) == 11 && substr($cleaned, 0, 1) == '7') {
-            $cleaned = '+' . $cleaned;
+        // Если номер начинается с +77, оставляем как есть
+        if (preg_match('/^\+77\d{9}$/', $cleaned)) {
+            return $cleaned;
+        }
+        
+        // Если номер без +77, добавляем +77
+        $numbersOnly = preg_replace('/[^0-9]/', '', $phone);
+        if (strlen($numbersOnly) == 10 && substr($numbersOnly, 0, 1) == '7') {
+            return '+7' . $numbersOnly;
+        }
+        
+        // Если номер с 8 в начале, заменяем на +77
+        if (strlen($numbersOnly) == 11 && substr($numbersOnly, 0, 1) == '8') {
+            return '+77' . substr($numbersOnly, 1);
         }
         
         return $cleaned;
     }
     
     public static function validatePhone($phone) {
-        $cleaned = self::formatPhoneNumber($phone);
+        $cleaned = preg_replace('/[^0-9+]/', '', $phone);
         
-        // Проверяем формат казахстанского номера
-        return preg_match('/^\+7[0-9]{10}$/', $cleaned);
+        // Проверяем Kazakhstan форматы: +77xxxxxxxxx или 87xxxxxxxxx
+        return preg_match('/^\+77\d{9}$/', $cleaned) || preg_match('/^87\d{9}$/', $cleaned);
     }
     
     public static function validateEmail($email) {
