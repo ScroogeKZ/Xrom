@@ -49,16 +49,25 @@ use App\Auth;
     <nav class="bg-white/95 backdrop-blur-sm shadow-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
                     <div class="bg-gradient-to-br from-primary to-primary-dark p-2 rounded-lg">
-                        <img src="/assets/logo.png" alt="Хром-KZ" class="h-8 w-8 filter brightness-0 invert" onerror="this.style.display='none'">
+                        <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6 md:h-8 md:w-8 filter brightness-0 invert" onerror="this.style.display='none'">
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold gradient-text">Хром-KZ</h1>
-                        <p class="text-sm text-gray-600 font-medium">Логистика</p>
+                        <h1 class="text-xl md:text-2xl font-bold gradient-text">Хром-KZ</h1>
+                        <p class="text-xs md:text-sm text-gray-600 font-medium">Логистика</p>
                     </div>
                 </div>
-                <div class="flex space-x-4">
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-600 hover:text-primary p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Desktop menu -->
+                <div class="hidden md:flex space-x-4">
                     <a href="/astana.php" class="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
                         Заказать доставку
                     </a>
@@ -67,11 +76,22 @@ use App\Auth;
                     </a>
                 </div>
             </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 pt-4 pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="/astana.php" class="bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-3 rounded-xl font-semibold text-center">
+                        Заказать доставку
+                    </a>
+                    <a href="/admin/login.php" class="text-gray-600 hover:text-primary font-medium px-4 py-3 rounded-xl hover:bg-gray-100 text-center">
+                        Вход в систему
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-bg text-white py-24 relative overflow-hidden">
+    <section class="hero-bg text-white py-12 md:py-24 relative overflow-hidden">
         <div class="absolute inset-0 bg-black/20"></div>
         <div class="max-w-7xl mx-auto px-4 text-center relative z-10">
             <div class="inline-flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-8">
@@ -79,22 +99,22 @@ use App\Auth;
                 <span class="text-sm font-medium">Надёжная логистика с 2020 года</span>
             </div>
             
-            <h1 class="text-5xl md:text-7xl font-bold mb-8 leading-tight">
+            <h1 class="text-3xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 leading-tight">
                 Система управления 
                 <span class="text-secondary">заказами</span>
             </h1>
-            <p class="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed opacity-90">
+            <p class="text-lg md:text-xl lg:text-2xl mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed opacity-90 px-4">
                 Внутренний инструмент для создания и управления заказами на доставку. 
                 Упрощенный процесс оформления заявок с автоматическим уведомлением менеджеров.
             </p>
             
-            <div class="flex flex-col lg:flex-row gap-6 justify-center items-center mb-16">
-                <a href="/astana.php" class="group bg-white text-primary px-10 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-64">
+            <div class="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center mb-12 md:mb-16 px-4">
+                <a href="/astana.php" class="group bg-white text-primary px-6 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 w-full sm:w-auto text-center">
                     <span class="flex items-center justify-center">
                         📋 Создать заказ по Астане
                     </span>
                 </a>
-                <a href="/regional.php" class="group border-2 border-white/50 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-primary transition-all duration-300 min-w-64">
+                <a href="/regional.php" class="group border-2 border-white/50 text-white px-6 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg hover:bg-white hover:text-primary transition-all duration-300 w-full sm:w-auto text-center">
                     <span class="flex items-center justify-center">
                         🗂️ Создать межгородской заказ
                     </span>
@@ -102,27 +122,27 @@ use App\Auth;
             </div>
             
             <!-- Stats -->
-            <div class="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+            <div class="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto px-4">
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-secondary mb-2">2м</div>
-                    <div class="text-sm opacity-80">Среднее время обработки</div>
+                    <div class="text-2xl md:text-3xl font-bold text-secondary mb-2">2м</div>
+                    <div class="text-xs md:text-sm opacity-80">Среднее время обработки</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-secondary mb-2">24/7</div>
-                    <div class="text-sm opacity-80">Доступность системы</div>
+                    <div class="text-2xl md:text-3xl font-bold text-secondary mb-2">24/7</div>
+                    <div class="text-xs md:text-sm opacity-80">Доступность системы</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-secondary mb-2">100%</div>
-                    <div class="text-sm opacity-80">Автоматических уведомлений</div>
+                    <div class="text-2xl md:text-3xl font-bold text-secondary mb-2">100%</div>
+                    <div class="text-xs md:text-sm opacity-80">Автоматических уведомлений</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Services Section -->
-    <section class="py-20 bg-white">
+    <section class="py-12 md:py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-16">
+            <div class="text-center mb-8 md:mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-6">
                     <span class="gradient-text">Типы заказов</span>
                 </h2>
@@ -131,8 +151,8 @@ use App\Auth;
                 </p>
             </div>
             
-            <div class="grid lg:grid-cols-2 gap-12">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-10 rounded-3xl shadow-xl card-hover border border-blue-200">
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 md:p-10 rounded-3xl shadow-xl card-hover border border-blue-200">
                     <div class="bg-primary text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
                         🚚
                     </div>
@@ -160,7 +180,7 @@ use App\Auth;
                     </a>
                 </div>
                 
-                <div class="bg-gradient-to-br from-orange-50 to-amber-100 p-10 rounded-3xl shadow-xl card-hover border border-orange-200">
+                <div class="bg-gradient-to-br from-orange-50 to-amber-100 p-6 md:p-10 rounded-3xl shadow-xl card-hover border border-orange-200">
                     <div class="bg-secondary text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
                         🌍
                     </div>
@@ -192,7 +212,7 @@ use App\Auth;
     </section>
 
     <!-- Features Section -->
-    <section class="bg-gradient-to-br from-gray-50 to-blue-50 py-20">
+    <section class="bg-gradient-to-br from-gray-50 to-blue-50 py-12 md:py-20">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-6">
@@ -203,8 +223,8 @@ use App\Auth;
                 </p>
             </div>
             
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div class="bg-white p-8 rounded-2xl shadow-lg card-hover text-center">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg card-hover text-center">
                     <div class="bg-gradient-to-br from-primary to-primary-dark text-white w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto">
                         ⚡
                     </div>
@@ -274,5 +294,23 @@ use App\Auth;
             </div>
         </div>
     </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
+            if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

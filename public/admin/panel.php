@@ -48,10 +48,19 @@ $orders = $orderModel->getAll($filters);
                 <div class="flex items-center space-x-3">
                     <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6" onerror="this.style.display='none'">
                     <div>
-                        <h1 class="text-lg font-medium text-gray-900">Админ панель</h1>
+                        <h1 class="text-base md:text-lg font-medium text-gray-900">Админ панель</h1>
                     </div>
                 </div>
-                <div class="flex space-x-4">
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 p-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Desktop menu -->
+                <div class="hidden md:flex space-x-4">
                     <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
                     <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
                     <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
@@ -63,11 +72,25 @@ $orders = $orderModel->getAll($filters);
                     <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
                 </div>
             </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 pt-3 pb-3">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <a href="/admin/dashboard.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Дашборд</a>
+                    <a href="/admin/reports.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Отчеты</a>
+                    <a href="/admin/logistics_calendar.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Календарь</a>
+                    <a href="/admin/quick_actions.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Быстрые действия</a>
+                    <a href="/admin/cost_calculator.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Калькулятор</a>
+                    <a href="/admin/users.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Пользователи</a>
+                    <a href="/admin/search.php" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Поиск</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900 px-2 py-2 text-center">Главная</a>
+                    <a href="/admin/logout.php" class="text-gray-900 hover:text-red-600 px-2 py-2 text-center font-medium col-span-2">Выйти</a>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-6">
-        <h1 class="text-xl font-medium text-gray-900 mb-6">Заказы</h1>
+    <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
+        <h1 class="text-lg md:text-xl font-medium text-gray-900 mb-4 md:mb-6">Заказы</h1>
         
         <?php if (isset($success)): ?>
             <div class="bg-green-50 text-green-800 px-3 py-2 text-sm mb-4 border border-green-200">
@@ -117,7 +140,7 @@ $orders = $orderModel->getAll($filters);
             </div>
             <div class="p-4">
             
-            <form method="GET" class="grid md:grid-cols-5 gap-4">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
                 <div class="md:col-span-2">
                     <label class="block text-xs font-medium text-gray-700 mb-1">Поиск</label>
                     <input type="text" name="search" placeholder="Имя, телефон, адрес..."
@@ -156,11 +179,11 @@ $orders = $orderModel->getAll($filters);
                     </select>
                 </div>
                 
-                <div class="md:col-span-5 flex space-x-2">
-                    <button type="submit" class="bg-gray-900 text-white text-sm px-4 py-1.5 hover:bg-gray-800">
+                <div class="md:col-span-5 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    <button type="submit" class="bg-gray-900 text-white text-sm px-4 py-1.5 hover:bg-gray-800 text-center">
                         Применить
                     </button>
-                    <a href="/admin/panel.php" class="bg-gray-300 text-gray-700 text-sm px-4 py-1.5 hover:bg-gray-400">
+                    <a href="/admin/panel.php" class="bg-gray-300 text-gray-700 text-sm px-4 py-1.5 hover:bg-gray-400 text-center">
                         Сбросить
                     </a>
                 </div>
@@ -584,9 +607,31 @@ $orders = $orderModel->getAll($filters);
         }
 
         function deleteOrder(orderId) {
-            if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
-                // Implementation for deleting order
-                alert('Функция удаления будет реализована позже');
+            if (confirm('Вы уверены, что хотите удалить этот заказ? Это действие нельзя отменить.')) {
+                // Send delete request to API
+                fetch(`/admin/api.php?action=delete_order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: parseInt(orderId)
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message and reload page
+                        alert('Заказ успешно удален!');
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка при удалении заказа: ' + (data.error || 'Неизвестная ошибка'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при удалении заказа. Проверьте подключение к интернету.');
+                });
             }
         }
 
@@ -680,6 +725,25 @@ $orders = $orderModel->getAll($filters);
         document.getElementById('orderDetailsModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeOrderDetails();
+            }
+        });
+
+        // Mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
             }
         });
 

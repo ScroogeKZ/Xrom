@@ -97,31 +97,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <nav class="bg-white/95 backdrop-blur-sm shadow-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
                     <div class="bg-gradient-to-br from-primary to-primary-dark p-2 rounded-lg">
-                        <img src="/assets/logo.png" alt="Хром-KZ" class="h-8 w-8 filter brightness-0 invert" onerror="this.style.display='none'">
+                        <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6 md:h-8 md:w-8 filter brightness-0 invert" onerror="this.style.display='none'">
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold gradient-text">Хром-KZ</h1>
-                        <p class="text-sm text-gray-600 font-medium">Логистика</p>
+                        <h1 class="text-xl md:text-2xl font-bold gradient-text">Хром-KZ</h1>
+                        <p class="text-xs md:text-sm text-gray-600 font-medium">Логистика</p>
                     </div>
                 </div>
-                <div class="flex space-x-4">
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-600 hover:text-primary p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Desktop menu -->
+                <div class="hidden md:flex space-x-4">
                     <a href="/" class="text-gray-600 hover:text-primary font-medium px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-200">Главная</a>
                     <a href="/regional.php" class="text-gray-600 hover:text-primary font-medium px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-200">Межгородские заказы</a>
                     <a href="/admin/login.php" class="text-gray-600 hover:text-primary font-medium px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-200">Панель управления</a>
                 </div>
             </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 pt-4 pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="/" class="text-gray-600 hover:text-primary font-medium px-4 py-3 rounded-xl hover:bg-gray-100 text-center">Главная</a>
+                    <a href="/regional.php" class="text-gray-600 hover:text-primary font-medium px-4 py-3 rounded-xl hover:bg-gray-100 text-center">Межгородские заказы</a>
+                    <a href="/admin/login.php" class="text-gray-600 hover:text-primary font-medium px-4 py-3 rounded-xl hover:bg-gray-100 text-center">Панель управления</a>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto px-4 py-12">
-        <div class="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4">
+    <div class="max-w-4xl mx-auto px-4 py-6 md:py-12">
+        <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-10 border border-gray-100">
+            <div class="text-center mb-6 md:mb-8">
+                <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4">
                     <span class="gradient-text">Создание заказа по Астане</span>
                 </h1>
-                <p class="text-gray-600 text-lg">Заполните форму для создания заявки на доставку в пределах города</p>
+                <p class="text-gray-600 text-base md:text-lg">Заполните форму для создания заявки на доставку в пределах города</p>
             </div>
             
             <?php if ($success): ?>
@@ -152,8 +169,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
             
-            <form method="POST" enctype="multipart/form-data" class="space-y-8">
-                <div class="grid lg:grid-cols-2 gap-8">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6 md:space-y-8">
+                <div class="grid md:grid-cols-2 gap-4 md:gap-8">
                     <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-800 mb-3">
                             <span class="flex items-center">
@@ -161,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </span>
                         </label>
                         <input type="text" name="pickup_address" required 
-                               class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-lg"
+                               class="w-full px-3 md:px-4 py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-sm md:text-lg"
                                placeholder="Укажите точный адрес">
                     </div>
                     
@@ -314,5 +331,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
     </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
+            if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

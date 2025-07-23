@@ -28,7 +28,7 @@ class TelegramService {
                 "*Тип:* {$orderTypeText}\n" .
                 "*Клиент:* {$order['contact_name']}\n" .
                 "*Телефон:* {$order['contact_phone']}\n" .
-                "*Груз:* {$order['cargo_type']} ({$order['weight']})\n";
+                "*Груз:* {$order['cargo_type']} ({$order['weight']} кг)\n";
             
             if (!empty($order['pickup_city'])) {
                 $message .= "*Город отправления:* {$order['pickup_city']}\n";
@@ -45,25 +45,12 @@ class TelegramService {
             }
             
             $message .= "*Время готовности:* {$order['ready_time']}\n";
-            
-            if (!empty($order['delivery_method'])) {
-                $message .= "*Способ доставки:* {$order['delivery_method']}\n";
-            }
-            
-            if (!empty($order['desired_arrival_date'])) {
-                $message .= "*Желаемая дата прибытия:* {$order['desired_arrival_date']}\n";
-            }
-            
-            if (!empty($order['notes'])) {
-                $message .= "*Комментарий:* {$order['notes']}\n";
-            }
-            
-            $message .= "\n*Дата создания:* " . date('d.m.Y H:i', strtotime($order['created_at']));
+            $message .= "*Создан:* " . date('d.m.Y H:i', strtotime($order['created_at']));
             
             return $this->sendMessage($message);
             
         } catch (Exception $e) {
-            error_log('Ошибка отправки уведомления о новом заказе: ' . $e->getMessage());
+            error_log('Ошибка отправки Telegram сообщения: ' . $e->getMessage());
             return false;
         }
     }
@@ -74,62 +61,60 @@ class TelegramService {
         }
         
         try {
-            $statusTexts = [
-                'new' => 'Новый',
-                'processing' => 'В работе',
-                'completed' => 'Завершен',
-                'cancelled' => 'Отменен'
+            $statusMap = [
+                'new' => '🆕 Новый',
+                'processing' => '⏳ В обработке',
+                'completed' => '✅ Завершен'
             ];
             
-            $message = "📋 *Обновление статуса заказа #{$order['id']}*\n\n" .
-                "*Старый статус:* {$statusTexts[$oldStatus]}\n" .
-                "*Новый статус:* {$statusTexts[$newStatus]}\n" .
+            $oldStatusText = $statusMap[$oldStatus] ?? $oldStatus;
+            $newStatusText = $statusMap[$newStatus] ?? $newStatus;
+            
+            $message = "📋 *Изменение статуса заказа #{$order['id']}*\n\n" .
+                "*Статус изменен:* {$oldStatusText} → {$newStatusText}\n" .
                 "*Клиент:* {$order['contact_name']}\n" .
                 "*Телефон:* {$order['contact_phone']}\n" .
-                "*Время обновления:* " . date('d.m.Y H:i');
+                "*Обновлено:* " . date('d.m.Y H:i');
             
             return $this->sendMessage($message);
+            
         } catch (Exception $e) {
-            error_log('Ошибка отправки уведомления об изменении статуса: ' . $e->getMessage());
+            error_log('Ошибка отправки Telegram уведомления о статусе: ' . $e->getMessage());
             return false;
         }
     }
     
-    public function sendMessage($message): bool {
-        if (!$this->isConfigured()) {
+    private function sendMessage($message): bool {
+        $url = "https://api.telegram.org/bot{$this->botToken}/sendMessage";
+        
+        $data = [
+            'chat_id' => $this->chatId,
+            'text' => $message,
+            'parse_mode' => 'Markdown'
+        ];
+        
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => http_build_query($data)
+            ]
+        ]);
+        
+        $result = file_get_contents($url, false, $context);
+        
+        if ($result === false) {
+            error_log('Ошибка отправки HTTP запроса в Telegram');
             return false;
         }
         
-        try {
-            $url = "https://api.telegram.org/bot{$this->botToken}/sendMessage";
-            
-            $data = [
-                'chat_id' => $this->chatId,
-                'text' => $message,
-                'parse_mode' => 'Markdown'
-            ];
-            
-            $options = [
-                'http' => [
-                    'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-                    'method' => 'POST',
-                    'content' => http_build_query($data)
-                ]
-            ];
-            
-            $context = stream_context_create($options);
-            $result = file_get_contents($url, false, $context);
-            
-            if ($result === false) {
-                throw new Exception('Не удалось отправить HTTP запрос');
-            }
-            
-            $response = json_decode($result, true);
-            return isset($response['ok']) && $response['ok'] === true;
-            
-        } catch (Exception $e) {
-            error_log('Ошибка отправки Telegram сообщения: ' . $e->getMessage());
+        $response = json_decode($result, true);
+        
+        if (!$response['ok']) {
+            error_log('Telegram API ошибка: ' . $response['description']);
             return false;
         }
+        
+        return true;
     }
 }

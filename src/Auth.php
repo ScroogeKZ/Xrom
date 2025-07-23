@@ -60,4 +60,9 @@ class Auth {
         }
         return null;
     }
+    
+    // Alias for backward compatibility
+    public static function isAuthenticated() {
+        return self::isLoggedIn();
+    }
 }
