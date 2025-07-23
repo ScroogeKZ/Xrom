@@ -71,6 +71,9 @@ use App\Auth;
                     <a href="/astana.php" class="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
                         Заказать доставку
                     </a>
+                    <a href="/client/login.php" class="bg-green-600 text-white px-4 py-3 rounded-xl font-medium hover:bg-green-700 transition-all duration-200">
+                        Личный кабинет
+                    </a>
                     <a href="/admin/login.php" class="text-gray-600 hover:text-primary font-medium px-4 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200">
                         Вход в систему
                     </a>
@@ -81,6 +84,9 @@ use App\Auth;
                 <div class="flex flex-col space-y-3">
                     <a href="/astana.php" class="bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-3 rounded-xl font-semibold text-center">
                         Заказать доставку
+                    </a>
+                    <a href="/client/login.php" class="bg-green-600 text-white px-4 py-3 rounded-xl font-medium text-center hover:bg-green-700">
+                        Личный кабинет
                     </a>
                     <a href="/admin/login.php" class="text-gray-600 hover:text-primary font-medium px-4 py-3 rounded-xl hover:bg-gray-100 text-center">
                         Вход в систему
@@ -117,6 +123,11 @@ use App\Auth;
                 <a href="/regional.php" class="group border-2 border-white/50 text-white px-6 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg hover:bg-white hover:text-primary transition-all duration-300 w-full sm:w-auto text-center">
                     <span class="flex items-center justify-center">
                         🗂️ Создать межгородской заказ
+                    </span>
+                </a>
+                <a href="/tracking.php" class="group border-2 border-secondary/50 text-secondary px-6 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg hover:bg-secondary hover:text-white transition-all duration-300 w-full sm:w-auto text-center">
+                    <span class="flex items-center justify-center">
+                        📍 Отследить заказ
                     </span>
                 </a>
             </div>

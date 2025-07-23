@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Отправляем email уведомление
             try {
                 $emailService = new EmailService();
-                $orderData = array_merge($data, ['id' => $result]);
+                $orderData = array_merge($data, ['id' => $result['id']]);
                 $emailService->sendOrderNotification($orderData, 'created');
             } catch (Exception $e) {
                 error_log("Email notification failed: " . $e->getMessage());

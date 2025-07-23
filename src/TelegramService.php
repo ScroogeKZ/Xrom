@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Exception;
+
 class TelegramService {
     private $botToken;
     private $chatId;

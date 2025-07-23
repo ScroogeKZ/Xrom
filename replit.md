@@ -108,7 +108,18 @@ The application is designed to be simple, reliable, and easy to maintain while p
 
 ## Recent Changes: Latest modifications with dates
 
-### July 23, 2025 - Migration to Replit Environment Complete
+### July 23, 2025 - Расширенные функции: мобильная админка, отслеживание заказов, система уведомлений
+- ✅ Исправлен калькулятор стоимости с профессиональной базой тарифов PostgreSQL
+- ✅ Добавлен интерактивный расчет с живой калькуляцией и детальной разбивкой стоимости  
+- ✅ Создана мобильная версия админки (/admin/mobile.php) с нижней навигацией
+- ✅ Добавлено публичное API отслеживания заказов (/api/tracking.php)
+- ✅ Создана страница отслеживания для клиентов (/tracking.php) с временной шкалой
+- ✅ Реализована система уведомлений (/admin/notifications.php) с статистикой
+- ✅ Интегрированы ссылки на личный кабинет клиентов и отслеживание на главной
+- ✅ Все новые модули протестированы и готовы к использованию
+- ✅ Система теперь включает 30+ профессиональных инструментов логистики
+
+### July 23, 2025 - Migration to Replit Environment Complete & All Bugs Fixed
 - ✅ Successfully migrated project from Replit Agent to standard Replit environment
 - ✅ Created PostgreSQL database with complete schema restoration from backup
 - ✅ Fixed all PHP authentication bugs and missing methods (Auth::isAuthenticated)  
@@ -121,6 +132,9 @@ The application is designed to be simple, reliable, and easy to maintain while p
   - Admin panel accessible ✅ (order management interface)
   - Database operations working ✅ (CRUD operations verified)
   - File upload directory ready ✅ (uploads/ directory configured)
+- ✅ Fixed "Array to string conversion" errors in EmailService.php (ID passing issue)
+- ✅ Added missing Exception import in TelegramService.php
+- ✅ Created uploads directory for file handling functionality
 - ✅ Application now runs with robust security practices and proper error handling
 - ✅ All migration checklist items completed successfully
 - ✅ System fully operational and ready for continued development
