@@ -26,11 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 status,
                 created_at,
                 shipping_cost,
-                pickup_contact,
-                delivery_contact,
+                contact_name,
+                recipient_contact,
                 notes
             FROM shipment_orders 
-            WHERE id = ? OR pickup_contact LIKE ? OR delivery_contact LIKE ?
+            WHERE id = ? OR contact_name LIKE ? OR recipient_contact LIKE ?
         ");
         $stmt->execute([$trackingNumber, "%$trackingNumber%", "%$trackingNumber%"]);
         $order = $stmt->fetch();
@@ -108,8 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'created_at' => $order['created_at'],
                 'estimated_delivery' => $estimatedDelivery->format('Y-m-d H:i:s'),
                 'shipping_cost' => $order['shipping_cost'],
-                'pickup_contact' => $order['pickup_contact'],
-                'delivery_contact' => $order['delivery_contact'],
+                'pickup_contact' => $order['contact_name'],
+                'delivery_contact' => $order['recipient_contact'],
                 'notes' => $order['notes']
             ],
             'status_history' => $statusHistory,
