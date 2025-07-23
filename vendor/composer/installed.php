@@ -3,7 +3,7 @@
         'name' => 'khrom-kz/logistics',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '8280b17514ae6e56b1ab482d94827ab6b6117d8e',
+        'reference' => 'b287f3d3a50df0fe186db37ac1fd17a7e27d9e15',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'khrom-kz/logistics' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '8280b17514ae6e56b1ab482d94827ab6b6117d8e',
+            'reference' => 'b287f3d3a50df0fe186db37ac1fd17a7e27d9e15',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

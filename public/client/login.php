@@ -24,8 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Неверный телефон или пароль');
         }
         
+        $_SESSION['client_logged_in'] = true;
         $_SESSION['client_id'] = $client['id'];
         $_SESSION['client_name'] = $client['name'];
+        $_SESSION['client_phone'] = $client['phone'];
         
         header('Location: /client/dashboard.php');
         exit;

@@ -8,6 +8,17 @@ use App\EmailService;
 $success = false;
 $error = '';
 
+// Function to validate Kazakhstan phone numbers
+function validateKazakhstanPhone($phoneNumber) {
+    $phone = preg_replace('/[^0-9+]/', '', $phoneNumber); // Remove all non-digits except +
+    
+    // Valid formats: +77xxxxxxxxx or 87xxxxxxxxx
+    if (preg_match('/^\+77\d{9}$/', $phone) || preg_match('/^87\d{9}$/', $phone)) {
+        return true;
+    }
+    return false;
+}
+
 $cities = [
     'Алматы', 'Шымкент', 'Тараз', 'Караганда', 'Актобе', 'Павлодар', 'Усть-Каменогорск',
     'Семей', 'Атырау', 'Костанай', 'Петропавловск', 'Уральск', 'Кызылорда', 'Актау',
@@ -34,11 +45,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
+        // Validate and format time
+        $readyTime = $_POST['ready_time'] ?? '';
+        if ($readyTime && !empty($readyTime)) {
+            // If time doesn't contain colon, assume it's in format like "1400" and convert to "14:00"
+            if (!str_contains($readyTime, ':')) {
+                if (strlen($readyTime) === 3) {
+                    $readyTime = '0' . substr($readyTime, 0, 1) . ':' . substr($readyTime, 1);
+                } elseif (strlen($readyTime) === 4) {
+                    $readyTime = substr($readyTime, 0, 2) . ':' . substr($readyTime, 2);
+                }
+            }
+            // Validate time format
+            if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $readyTime)) {
+                throw new Exception('Неверный формат времени. Используйте формат ЧЧ:ММ (например: 14:30)');
+            }
+        }
+
+        // Validate phone numbers
+        $phone = $_POST['phone'] ?? '';
+        $recipientPhone = $_POST['recipient_phone'] ?? '';
+        
+        if (!validateKazakhstanPhone($phone)) {
+            throw new Exception('Неверный формат номера телефона отправителя. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
+        }
+        
+        if (!validateKazakhstanPhone($recipientPhone)) {
+            throw new Exception('Неверный формат номера телефона получателя. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
+        }
+
         $data = [
             'order_type' => 'regional',
             'pickup_city' => $_POST['pickup_city'] ?? '',
             'pickup_address' => $_POST['pickup_address'] ?? '',
-            'ready_time' => $_POST['ready_time'] ?? '',
+            'ready_time' => $readyTime,
             'contact_name' => $_POST['contact_name'] ?? '',
             'contact_phone' => $_POST['contact_phone'] ?? '',
             'cargo_type' => $_POST['cargo_type'] ?? '',
@@ -101,6 +141,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-clip: text;
         }
     </style>
+    <script>
+        function validatePhone(input) {
+            const phone = input.value;
+            const phonePattern = /^(\+77|87)\d{9}$/;
+            
+            if (phone && !phonePattern.test(phone)) {
+                input.setCustomValidity('Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
+            } else {
+                input.setCustomValidity('');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInputs = document.querySelectorAll('input[type="tel"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    validatePhone(this);
+                });
+            });
+        });
+    </script>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
     <!-- Navigation -->
@@ -275,7 +336,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Телефон отправителя *</label>
-                        <input type="tel" name="phone" required 
+                        <input type="tel" name="phone" required placeholder="+77xxxxxxxxx или 87xxxxxxxxx"
+                               pattern="(\+77|87)\d{9}" title="Формат: +77xxxxxxxxx или 87xxxxxxxxx"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -289,7 +351,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Телефон получателя *</label>
-                        <input type="tel" name="recipient_phone" required 
+                        <input type="tel" name="recipient_phone" required placeholder="+77xxxxxxxxx или 87xxxxxxxxx"
+                               pattern="(\+77|87)\d{9}" title="Формат: +77xxxxxxxxx или 87xxxxxxxxx"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>

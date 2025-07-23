@@ -162,6 +162,19 @@ class ShipmentOrder {
         }
     }
     
+    public function getByClientPhone($phone) {
+        $sql = "SELECT * FROM shipment_orders WHERE contact_phone = :phone ORDER BY created_at DESC";
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':phone' => $phone]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log("Error fetching orders by client phone: " . $e->getMessage());
+            throw new Exception("Failed to fetch client orders");
+        }
+    }
+    
     public function delete($id) {
         $sql = "DELETE FROM shipment_orders WHERE id = :id";
         

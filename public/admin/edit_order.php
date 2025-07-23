@@ -29,33 +29,40 @@ if (!$order) {
 // Обработка формы
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $updateData = [
-            'order_type' => $_POST['order_type'],
-            'pickup_address' => $_POST['pickup_address'],
-            'ready_time' => $_POST['ready_time'],
-            'cargo_type' => $_POST['cargo_type'],
-            'weight' => $_POST['weight'],
-            'dimensions' => $_POST['dimensions'],
-            'contact_name' => $_POST['contact_name'],
-            'contact_phone' => $_POST['contact_phone'],
-            'notes' => $_POST['notes'] ?? '',
-            'status' => $_POST['status']
-        ];
-
-        // Поля для региональных заказов
-        if ($_POST['order_type'] === 'regional') {
-            $updateData['pickup_city'] = $_POST['pickup_city'] ?? '';
-            $updateData['destination_city'] = $_POST['destination_city'] ?? '';
-            $updateData['delivery_address'] = $_POST['delivery_address'] ?? '';
-            $updateData['delivery_method'] = $_POST['delivery_method'] ?? '';
-            $updateData['desired_arrival_date'] = $_POST['desired_arrival_date'] ?? '';
+        // Проверяем, это быстрое обновление статуса или полное редактирование
+        if (isset($_POST['status']) && count($_POST) === 1) {
+            // Быстрое обновление только статуса
+            $updateData = ['status' => $_POST['status']];
         } else {
-            // Очищаем региональные поля для астанинских заказов
-            $updateData['pickup_city'] = null;
-            $updateData['destination_city'] = null;
-            $updateData['delivery_address'] = null;
-            $updateData['delivery_method'] = null;
-            $updateData['desired_arrival_date'] = null;
+            // Полное обновление всех полей
+            $updateData = [
+                'order_type' => $_POST['order_type'] ?? $order['order_type'],
+                'pickup_address' => $_POST['pickup_address'] ?? $order['pickup_address'],
+                'ready_time' => $_POST['ready_time'] ?? $order['ready_time'],
+                'cargo_type' => $_POST['cargo_type'] ?? $order['cargo_type'],
+                'weight' => $_POST['weight'] ?? $order['weight'],
+                'dimensions' => $_POST['dimensions'] ?? $order['dimensions'],
+                'contact_name' => $_POST['contact_name'] ?? $order['contact_name'],
+                'contact_phone' => $_POST['contact_phone'] ?? $order['contact_phone'],
+                'notes' => $_POST['notes'] ?? $order['notes'],
+                'status' => $_POST['status'] ?? $order['status']
+            ];
+
+            // Поля для региональных заказов
+            if (($_POST['order_type'] ?? $order['order_type']) === 'regional') {
+                $updateData['pickup_city'] = $_POST['pickup_city'] ?? $order['pickup_city'];
+                $updateData['destination_city'] = $_POST['destination_city'] ?? $order['destination_city'];
+                $updateData['delivery_address'] = $_POST['delivery_address'] ?? $order['delivery_address'];
+                $updateData['delivery_method'] = $_POST['delivery_method'] ?? $order['delivery_method'];
+                $updateData['desired_arrival_date'] = $_POST['desired_arrival_date'] ?? $order['desired_arrival_date'];
+            } else {
+                // Очищаем региональные поля для астанинских заказов
+                $updateData['pickup_city'] = null;
+                $updateData['destination_city'] = null;
+                $updateData['delivery_address'] = null;
+                $updateData['delivery_method'] = null;
+                $updateData['desired_arrival_date'] = null;
+            }
         }
 
         $orderModel->update($orderId, $updateData);
