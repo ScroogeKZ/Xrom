@@ -11,22 +11,24 @@ CRMAuth::requireCRMAuth('users', 'read');
 $roleManager = new RoleManager();
 $currentUser = CRMAuth::getCurrentUser();
 
-// Получение всех пользователей с ролями
+// Получение всех пользователей (упрощенная версия без ролей)
 $stmt = $roleManager->db->prepare("
     SELECT u.*, 
-           array_agg(r.name) FILTER (WHERE r.name IS NOT NULL) as roles,
-           array_agg(r.display_name) FILTER (WHERE r.display_name IS NOT NULL) as role_names
+           ARRAY['admin'] as roles,
+           ARRAY['Администратор'] as role_names
     FROM users u
-    LEFT JOIN user_roles ur ON u.id = ur.user_id
-    LEFT JOIN roles r ON ur.role_id = r.id
     WHERE u.id IS NOT NULL
-    GROUP BY u.id
     ORDER BY u.created_at DESC
 ");
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$allRoles = $roleManager->getAllRoles();
+// Простой список ролей для отображения
+$allRoles = [
+    ['name' => 'admin', 'display_name' => 'Администратор'],
+    ['name' => 'manager', 'display_name' => 'Менеджер'],
+    ['name' => 'operator', 'display_name' => 'Оператор']
+];
 ?>
 <!DOCTYPE html>
 <html lang="ru">

@@ -4,39 +4,28 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\CRM\CRMAuth;
-use App\Models\ShipmentOrder;
-use App\Models\Driver;
-use App\Models\Carrier;
-use App\Models\Vehicle;
+use App\Models\DashboardWidget;
 
 // Проверка авторизации
 CRMAuth::requireCRMAuth();
 
-$shipmentOrder = new ShipmentOrder();
-$driver = new Driver();
-$carrier = new Carrier();
-$vehicle = new Vehicle();
+$currentUser = CRMAuth::getCurrentUser();
+$widgetModel = new DashboardWidget();
 
-// Получаем статистику
-$totalOrders = count($shipmentOrder->getAll());
-$newOrders = count($shipmentOrder->getByStatus('new'));
-$inProgressOrders = count($shipmentOrder->getByStatus('assigned')) + count($shipmentOrder->getByStatus('picked_up')) + count($shipmentOrder->getByStatus('in_transit'));
-$completedOrders = count($shipmentOrder->getByStatus('delivered'));
+// Получаем пользовательские виджеты
+$userWidgets = $widgetModel->getUserWidgets($currentUser['id']);
 
-$totalDrivers = count($driver->getAll());
-$availableDrivers = count($driver->getAll('available'));
-$busyDrivers = count($driver->getAll('busy'));
-
-$totalVehicles = count($vehicle->getAll());
-$availableVehicles = count($vehicle->getAll('available'));
-$busyVehicles = count($vehicle->getAll('busy'));
-
-$totalCarriers = count($carrier->getAll());
-$activeCarriers = count($carrier->getAll('active'));
-
-// Последние заказы
-$recentOrders = array_slice($shipmentOrder->getAll(), -5);
-$recentOrders = array_reverse($recentOrders);
+// Если у пользователя нет настроек, создаем дефолтные виджеты
+if (empty($userWidgets)) {
+    $defaultWidgets = [
+        ['type' => 'orders_stats', 'config' => [], 'visible' => true],
+        ['type' => 'recent_orders', 'config' => ['limit' => 5], 'visible' => true],
+        ['type' => 'carriers_stats', 'config' => [], 'visible' => true],
+        ['type' => 'quick_actions', 'config' => [], 'visible' => true]
+    ];
+    $widgetModel->saveUserWidgets($currentUser['id'], $defaultWidgets);
+    $userWidgets = $widgetModel->getUserWidgets($currentUser['id']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -60,65 +49,154 @@ $recentOrders = array_reverse($recentOrders);
 
             <!-- Основной контент -->
             <div class="p-6">
-                <!-- Приветствие -->
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">Добро пожаловать в CRM систему</h1>
-                    <p class="text-gray-600">Обзор деятельности логистической компании Хром-KZ</p>
+                <!-- Приветствие и настройки -->
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Добро пожаловать в CRM систему</h1>
+                        <p class="text-gray-600">Обзор деятельности логистической компании Хром-KZ</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="/admin/dashboard_customize.php" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center">
+                            <i class="fas fa-cog mr-2"></i>
+                            Настроить дашборд
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Основная статистика -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Заказы -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-blue-100 rounded-full">
-                                <i class="fas fa-box text-blue-600 text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-2xl font-bold text-gray-900"><?= $totalOrders ?></h3>
-                                <p class="text-gray-600">Всего заказов</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Водители -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-green-100 rounded-full">
-                                <i class="fas fa-user-tie text-green-600 text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-2xl font-bold text-gray-900"><?= $availableDrivers ?></h3>
-                                <p class="text-gray-600">Доступно водителей</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Транспорт -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-yellow-100 rounded-full">
-                                <i class="fas fa-truck text-yellow-600 text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-2xl font-bold text-gray-900"><?= $availableVehicles ?></h3>
-                                <p class="text-gray-600">Свободный транспорт</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Перевозчики -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="p-3 bg-purple-100 rounded-full">
-                                <i class="fas fa-building text-purple-600 text-xl"></i>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-2xl font-bold text-gray-900"><?= $activeCarriers ?></h3>
-                                <p class="text-gray-600">Активных перевозчиков</p>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Пользовательские виджеты -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <?php foreach ($userWidgets as $widget): ?>
+                        <?php if ($widget['is_visible']): ?>
+                            <?php
+                                $config = json_decode($widget['widget_config'], true) ?? [];
+                                $widgetData = $widgetModel->getWidgetData($widget['widget_type'], $config);
+                                $widgetType = $widget['widget_type'];
+                            ?>
+                            
+                            <?php if ($widgetType === 'orders_stats'): ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Статистика заказов</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Всего заказов</span>
+                                            <span class="font-bold text-2xl text-blue-600"><?= $widgetData['total'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Новые</span>
+                                            <span class="font-medium text-orange-600"><?= $widgetData['new_orders'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">В работе</span>
+                                            <span class="font-medium text-yellow-600"><?= $widgetData['in_progress'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Завершено</span>
+                                            <span class="font-medium text-green-600"><?= $widgetData['completed'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Сегодня</span>
+                                            <span class="font-medium text-blue-600"><?= $widgetData['today_orders'] ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                            <?php elseif ($widgetType === 'recent_orders'): ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 lg:col-span-2">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Последние заказы</h3>
+                                    <div class="space-y-3">
+                                        <?php foreach ($widgetData as $order): ?>
+                                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">#<?= $order['id'] ?> - <?= $order['contact_name'] ?></p>
+                                                    <p class="text-sm text-gray-600"><?= $order['pickup_address'] ?> → <?= $order['delivery_address'] ?></p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span class="px-2 py-1 text-xs rounded-full 
+                                                        <?= $order['status'] === 'new' ? 'bg-orange-100 text-orange-600' : 
+                                                           ($order['status'] === 'completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600') ?>">
+                                                        <?= ucfirst($order['status']) ?>
+                                                    </span>
+                                                    <p class="text-xs text-gray-500 mt-1"><?= date('d.m.Y H:i', strtotime($order['created_at'])) ?></p>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            
+                            <?php elseif ($widgetType === 'carriers_stats'): ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Ресурсы</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Активные перевозчики</span>
+                                            <span class="font-medium text-purple-600"><?= $widgetData['active_carriers'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Свободный транспорт</span>
+                                            <span class="font-medium text-green-600"><?= $widgetData['available_vehicles'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Доступные водители</span>
+                                            <span class="font-medium text-blue-600"><?= $widgetData['available_drivers'] ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                            <?php elseif ($widgetType === 'quick_actions'): ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Быстрые действия</h3>
+                                    <div class="grid grid-cols-1 gap-2">
+                                        <?php foreach ($widgetData as $action): ?>
+                                            <a href="<?= $action['url'] ?>" 
+                                               class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                                                <i class="fas fa-<?= $action['icon'] ?> text-gray-500 mr-3"></i>
+                                                <?= $action['name'] ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            
+                            <?php elseif ($widgetType === 'system_status'): ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Состояние системы</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Статус</span>
+                                            <span class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded-full">
+                                                <?= ucfirst($widgetData['status']) ?>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">PHP версия</span>
+                                            <span class="font-medium text-gray-900"><?= $widgetData['php_version'] ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">База данных</span>
+                                            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">
+                                                <?= ucfirst($widgetData['database_status']) ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                            <?php elseif ($widgetType === 'revenue_chart'): ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 lg:col-span-2">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Доходы за 7 дней</h3>
+                                    <div class="space-y-2">
+                                        <?php foreach ($widgetData as $day): ?>
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm text-gray-600"><?= date('d.m.Y', strtotime($day['date'])) ?></span>
+                                                <div class="flex items-center">
+                                                    <span class="text-sm font-medium text-gray-900 mr-2"><?= $day['orders_count'] ?> заказов</span>
+                                                    <span class="text-sm text-green-600"><?= number_format($day['revenue'], 0) ?> ₸</span>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
 
                 <!-- Быстрые действия -->

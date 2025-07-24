@@ -28,7 +28,7 @@ class Vehicle {
             $params[] = $carrierId;
         }
         
-        $sql .= " ORDER BY v.vehicle_number";
+        $sql .= " ORDER BY v.license_plate";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -48,47 +48,38 @@ class Vehicle {
     
     public function create($data) {
         $stmt = $this->db->prepare("
-            INSERT INTO vehicles (carrier_id, vehicle_number, vehicle_type, brand, model, year, 
-                                capacity_weight, capacity_volume, fuel_type, status, insurance_expires, tech_inspection_expires) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO vehicles (carrier_id, license_plate, vehicle_type, make, model, 
+                                capacity_weight, capacity_volume, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
         return $stmt->execute([
             $data['carrier_id'],
-            $data['vehicle_number'],
+            $data['license_plate'],
             $data['vehicle_type'],
-            $data['brand'],
+            $data['make'],
             $data['model'],
-            $data['year'],
             $data['capacity_weight'],
             $data['capacity_volume'],
-            $data['fuel_type'],
-            $data['status'] ?? 'available',
-            $data['insurance_expires'],
-            $data['tech_inspection_expires']
+            $data['status'] ?? 'available'
         ]);
     }
     
     public function update($id, $data) {
         $stmt = $this->db->prepare("
             UPDATE vehicles 
-            SET carrier_id = ?, vehicle_number = ?, vehicle_type = ?, brand = ?, model = ?, year = ?,
-                capacity_weight = ?, capacity_volume = ?, fuel_type = ?, status = ?, 
-                insurance_expires = ?, tech_inspection_expires = ?, updated_at = CURRENT_TIMESTAMP 
+            SET carrier_id = ?, license_plate = ?, vehicle_type = ?, make = ?, model = ?,
+                capacity_weight = ?, capacity_volume = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
         ");
         return $stmt->execute([
             $data['carrier_id'],
-            $data['vehicle_number'],
+            $data['license_plate'],
             $data['vehicle_type'],
-            $data['brand'],
+            $data['make'],
             $data['model'],
-            $data['year'],
             $data['capacity_weight'],
             $data['capacity_volume'],
-            $data['fuel_type'],
             $data['status'],
-            $data['insurance_expires'],
-            $data['tech_inspection_expires'],
             $id
         ]);
     }
@@ -120,14 +111,12 @@ class Vehicle {
         
         $stmt = $this->db->prepare("
             UPDATE shipment_orders 
-            SET vehicle_id = ?, vehicle_number = ?, carrier_id = ?, carrier_name = ?, status_updated_at = CURRENT_TIMESTAMP 
+            SET vehicle_id = ?, carrier_id = ?, status_updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
         ");
         $result = $stmt->execute([
             $vehicleId, 
-            $vehicle['vehicle_number'], 
             $vehicle['carrier_id'], 
-            $vehicle['company_name'], 
             $orderId
         ]);
         
@@ -151,7 +140,7 @@ class Vehicle {
             // Убираем назначение из заказа
             $stmt = $this->db->prepare("
                 UPDATE shipment_orders 
-                SET vehicle_id = NULL, vehicle_number = NULL, carrier_id = NULL, carrier_name = NULL, status_updated_at = CURRENT_TIMESTAMP 
+                SET vehicle_id = NULL, carrier_id = NULL, status_updated_at = CURRENT_TIMESTAMP 
                 WHERE id = ?
             ");
             return $stmt->execute([$orderId]);

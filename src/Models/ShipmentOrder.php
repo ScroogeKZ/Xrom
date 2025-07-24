@@ -221,12 +221,11 @@ class ShipmentOrder {
             c.phone as carrier_phone,
             c.license_number as carrier_license,
             c.rating,
-            v.brand,
+            v.make,
             v.model,
-            v.year,
             v.license_plate,
             v.vehicle_type,
-            CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+            d.name as driver_name,
             d.phone as driver_phone,
             d.license_number as driver_license
         FROM shipment_orders so

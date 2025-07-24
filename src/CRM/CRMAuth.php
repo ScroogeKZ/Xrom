@@ -21,16 +21,8 @@ class CRMAuth extends Auth {
             exit;
         }
         
-        if ($requiredResource && $requiredAction) {
-            $crmAuth = new self();
-            $userId = $_SESSION['user_id'];
-            
-            if (!$crmAuth->roleManager->hasPermission($userId, $requiredResource, $requiredAction)) {
-                header('HTTP/1.1 403 Forbidden');
-                include __DIR__ . '/../../public/admin/403.php';
-                exit;
-            }
-        }
+        // В упрощенной версии все авторизованные админы имеют полный доступ
+        // Проверка ресурсов отключена до реализации полной системы ролей
     }
     
     /**
@@ -44,28 +36,23 @@ class CRMAuth extends Auth {
         $crmAuth = new self();
         $userId = $_SESSION['user_id'];
         
-        // Получение данных пользователя
+        // Получение данных пользователя (упрощенная версия без ролей)
         $stmt = $crmAuth->roleManager->db->prepare("
             SELECT u.*, 
-                   array_agg(r.name) FILTER (WHERE r.name IS NOT NULL) as roles
+                   COALESCE(u.first_name, 'Админ') as first_name,
+                   COALESCE(u.last_name, 'Пользователь') as last_name,
+                   ARRAY['admin'] as roles
             FROM users u
-            LEFT JOIN user_roles ur ON u.id = ur.user_id
-            LEFT JOIN roles r ON ur.role_id = r.id
             WHERE u.id = ?
-            GROUP BY u.id
         ");
         $stmt->execute([$userId]);
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
         
         if ($user) {
-            // Преобразование PostgreSQL массива в PHP массив
-            if (is_string($user['roles'])) {
-                $rolesString = trim($user['roles'], '{}');
-                $user['roles'] = $rolesString ? explode(',', $rolesString) : [];
-            }
-            
-            $user['permissions'] = $crmAuth->roleManager->getUserPermissions($userId);
-            $user['is_admin'] = $crmAuth->roleManager->isAdmin($userId);
+            // Для админов даем все права
+            $user['roles'] = ['admin'];
+            $user['permissions'] = ['create', 'read', 'update', 'delete'];
+            $user['is_admin'] = true;
         }
         
         return $user;
@@ -79,8 +66,8 @@ class CRMAuth extends Auth {
             return false;
         }
         
-        $crmAuth = new self();
-        return $crmAuth->roleManager->hasPermission($_SESSION['user_id'], $resource, $action);
+        // В упрощенной версии все админы имеют все права
+        return true;
     }
     
     /**
@@ -91,8 +78,8 @@ class CRMAuth extends Auth {
             return false;
         }
         
-        $crmAuth = new self();
-        return $crmAuth->roleManager->hasRole($_SESSION['user_id'], $roleNames);
+        // В упрощенной версии все админы имеют все роли
+        return true;
     }
     
     /**

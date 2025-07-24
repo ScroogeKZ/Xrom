@@ -28,7 +28,7 @@ class Driver {
             $params[] = $carrierId;
         }
         
-        $sql .= " ORDER BY d.first_name, d.last_name";
+        $sql .= " ORDER BY d.name";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -43,15 +43,15 @@ class Driver {
     
     public function create($data) {
         $stmt = $this->db->prepare("
-            INSERT INTO drivers (first_name, last_name, phone, license_number, carrier_id, status) 
+            INSERT INTO drivers (name, phone, license_number, carrier_id, experience_years, status) 
             VALUES (?, ?, ?, ?, ?, ?)
         ");
         return $stmt->execute([
-            $data['first_name'],
-            $data['last_name'],
+            $data['name'],
             $data['phone'],
             $data['license_number'],
             $data['carrier_id'],
+            $data['experience_years'] ?? 0,
             $data['status'] ?? 'available'
         ]);
     }
@@ -59,16 +59,16 @@ class Driver {
     public function update($id, $data) {
         $stmt = $this->db->prepare("
             UPDATE drivers 
-            SET first_name = ?, last_name = ?, phone = ?, license_number = ?, carrier_id = ?, 
-                status = ?
+            SET name = ?, phone = ?, license_number = ?, carrier_id = ?, 
+                experience_years = ?, status = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         ");
         return $stmt->execute([
-            $data['first_name'],
-            $data['last_name'],
+            $data['name'],
             $data['phone'],
             $data['license_number'],
             $data['carrier_id'],
+            $data['experience_years'] ?? 0,
             $data['status'],
             $id
         ]);
