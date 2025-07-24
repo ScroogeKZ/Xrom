@@ -113,20 +113,72 @@ class ShipmentOrder {
         }
     }
     
-    public function updateStatus($id, $status) {
-        $sql = "UPDATE shipment_orders SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE id = :id RETURNING *";
+    public function updateStatus($id, $status, $driverId = null) {
+        $sql = "UPDATE shipment_orders SET status = :status, status_updated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP";
+        $params = [':id' => $id, ':status' => $status];
+        
+        if ($driverId !== null) {
+            $sql .= ", driver_id = :driver_id";
+            $params[':driver_id'] = $driverId;
+            
+            // Получаем имя водителя
+            $driverStmt = $this->db->prepare("SELECT name FROM drivers WHERE id = ?");
+            $driverStmt->execute([$driverId]);
+            $driver = $driverStmt->fetch();
+            if ($driver) {
+                $sql .= ", driver_name = :driver_name";
+                $params[':driver_name'] = $driver['name'];
+            }
+        }
+        
+        $sql .= " WHERE id = :id RETURNING *";
         
         try {
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([
-                ':id' => $id,
-                ':status' => $status
-            ]);
+            $stmt->execute($params);
             return $stmt->fetch();
         } catch (PDOException $e) {
             error_log("Error updating shipment order status: " . $e->getMessage());
             throw new Exception("Failed to update shipment order status");
         }
+    }
+    
+    // Получить все возможные статусы заказа
+    public static function getStatuses() {
+        return [
+            'new' => 'Новый',
+            'confirmed' => 'Подтвержден',
+            'assigned' => 'Назначен водитель', 
+            'picked_up' => 'Забран у отправителя',
+            'in_transit' => 'В пути',
+            'at_destination' => 'Прибыл в пункт назначения',
+            'out_for_delivery' => 'Доставляется получателю',
+            'delivered' => 'Доставлен',
+            'failed_delivery' => 'Неудачная доставка',
+            'returned' => 'Возвращен отправителю',
+            'cancelled' => 'Отменен',
+            'on_hold' => 'Приостановлен'
+        ];
+    }
+    
+    // Получить статус на русском языке
+    public static function getStatusName($status) {
+        $statuses = self::getStatuses();
+        return $statuses[$status] ?? $status;
+    }
+    
+    // Назначить водителя
+    public function assignDriver($orderId, $driverId) {
+        require_once __DIR__ . '/Driver.php';
+        $driver = new Driver();
+        return $driver->assignToOrder($driverId, $orderId);
+    }
+    
+    // Снять назначение водителя
+    public function unassignDriver($orderId) {
+        require_once __DIR__ . '/Driver.php';
+        $driver = new Driver();
+        return $driver->unassignFromOrder($orderId);
     }
     
     public function update($id, $data) {
@@ -277,5 +329,11 @@ class ShipmentOrder {
             error_log("Error getting order type distribution: " . $e->getMessage());
             return [];
         }
+    }
+    
+    public function getByStatus($status) {
+        $stmt = $this->db->prepare("SELECT * FROM shipment_orders WHERE status = ? ORDER BY created_at DESC");
+        $stmt->execute([$status]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

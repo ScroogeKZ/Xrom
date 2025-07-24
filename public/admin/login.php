@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username && $password) {
         try {
             if (Auth::login($username, $password)) {
-                header('Location: /admin/panel.php');
+                header('Location: /admin/crm_dashboard.php');
                 exit;
             } else {
                 $error = 'Неверный логин или пароль';
