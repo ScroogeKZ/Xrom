@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$phone]);
         $client = $stmt->fetch();
         
-        if (!$client || empty($client['password']) || !password_verify($password, $client['password'])) {
+        if (!$client || empty($client['password_hash']) || !password_verify($password, $client['password_hash'])) {
             throw new Exception('Неверный телефон или пароль');
         }
         

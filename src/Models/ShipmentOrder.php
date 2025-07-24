@@ -215,7 +215,26 @@ class ShipmentOrder {
     }
     
     public function getByClientPhone($phone) {
-        $sql = "SELECT * FROM shipment_orders WHERE contact_phone = :phone ORDER BY created_at DESC";
+        $sql = "SELECT 
+            so.*,
+            c.name as carrier_name,
+            c.phone as carrier_phone,
+            c.license_number as carrier_license,
+            c.rating,
+            v.brand,
+            v.model,
+            v.year,
+            v.license_plate,
+            v.vehicle_type,
+            CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+            d.phone as driver_phone,
+            d.license_number as driver_license
+        FROM shipment_orders so
+        LEFT JOIN carriers c ON so.carrier_id = c.id
+        LEFT JOIN vehicles v ON so.vehicle_id = v.id
+        LEFT JOIN drivers d ON so.driver_id = d.id
+        WHERE so.contact_phone = :phone 
+        ORDER BY so.created_at DESC";
         
         try {
             $stmt = $this->db->prepare($sql);

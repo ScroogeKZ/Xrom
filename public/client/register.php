@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $verificationCode = rand(100000, 999999);
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         
-        $stmt = $db->prepare("INSERT INTO clients (name, first_name, email, phone, password, is_verified, created_at) VALUES (?, ?, ?, ?, ?, false, NOW())");
-        $stmt->execute([$name, $name, $email, $phone, $passwordHash]);
+        $stmt = $db->prepare("INSERT INTO clients (name, email, phone, password_hash, created_at) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([$name, $email, $phone, $passwordHash]);
         
         $success = true;
         
