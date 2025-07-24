@@ -12,7 +12,7 @@ class Vehicle {
     }
     
     public function getAll($status = null, $carrierId = null) {
-        $sql = "SELECT v.*, c.company_name 
+        $sql = "SELECT v.*, c.name as carrier_name 
                 FROM vehicles v 
                 LEFT JOIN carriers c ON v.carrier_id = c.id 
                 WHERE 1=1";
@@ -37,7 +37,7 @@ class Vehicle {
     
     public function getById($id) {
         $stmt = $this->db->prepare("
-            SELECT v.*, c.company_name 
+            SELECT v.*, c.name as carrier_name 
             FROM vehicles v 
             LEFT JOIN carriers c ON v.carrier_id = c.id 
             WHERE v.id = ?

@@ -18,12 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Заполните все обязательные поля');
         }
         
+        // Проверяем, не зарегистрирован ли уже этот номер
+        $checkStmt = $db->prepare("SELECT id FROM clients WHERE phone = ?");
+        $checkStmt->execute([$phone]);
+        if ($checkStmt->fetch()) {
+            throw new Exception('Пользователь с таким номером телефона уже зарегистрирован');
+        }
+        
         // Генерируем код подтверждения
         $verificationCode = rand(100000, 999999);
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         
-        $stmt = $db->prepare("INSERT INTO clients (name, email, phone, password_hash, verification_code) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $email, $phone, $passwordHash, $verificationCode]);
+        $stmt = $db->prepare("INSERT INTO clients (name, first_name, email, phone, password, is_verified, created_at) VALUES (?, ?, ?, ?, ?, false, NOW())");
+        $stmt->execute([$name, $name, $email, $phone, $passwordHash]);
         
         $success = true;
         

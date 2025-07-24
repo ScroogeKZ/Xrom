@@ -37,9 +37,7 @@ class ClientAuth {
      * @param array $client - данные клиента из базы
      */
     public static function login($client) {
-        // Устанавливаем долгосрочную сессию (24 часа)
-        ini_set('session.cookie_lifetime', 86400);
-        ini_set('session.gc_maxlifetime', 86400);
+        // Настройки сессии уже установлены в начале скрипта
         
         $_SESSION['client_logged_in'] = true;
         $_SESSION['client_id'] = $client['id'];

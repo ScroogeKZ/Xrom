@@ -13,10 +13,10 @@ class Carrier {
     
     public function getAll($status = null) {
         if ($status) {
-            $stmt = $this->db->prepare("SELECT * FROM carriers WHERE status = ? ORDER BY company_name");
+            $stmt = $this->db->prepare("SELECT * FROM carriers WHERE status = ? ORDER BY name");
             $stmt->execute([$status]);
         } else {
-            $stmt = $this->db->prepare("SELECT * FROM carriers ORDER BY company_name");
+            $stmt = $this->db->prepare("SELECT * FROM carriers ORDER BY name");
             $stmt->execute();
         }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -30,16 +30,14 @@ class Carrier {
     
     public function create($data) {
         $stmt = $this->db->prepare("
-            INSERT INTO carriers (company_name, contact_person, phone, email, address, license_number, rating, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO carriers (name, license_number, contact_phone, contact_email, rating, status) 
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
         return $stmt->execute([
-            $data['company_name'],
-            $data['contact_person'],
-            $data['phone'],
-            $data['email'],
-            $data['address'],
+            $data['name'],
             $data['license_number'],
+            $data['contact_phone'],
+            $data['contact_email'],
             $data['rating'] ?? 5.00,
             $data['status'] ?? 'active'
         ]);
@@ -76,7 +74,7 @@ class Carrier {
     
     public function getCarrierVehicles($carrierId) {
         $stmt = $this->db->prepare("
-            SELECT v.*, c.company_name 
+            SELECT v.*, c.name as carrier_name 
             FROM vehicles v 
             JOIN carriers c ON v.carrier_id = c.id 
             WHERE v.carrier_id = ? 

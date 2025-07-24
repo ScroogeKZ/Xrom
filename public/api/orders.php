@@ -32,11 +32,17 @@ try {
             break;
             
         case 'POST':
+            // Поддержка как JSON, так и form-data
             $input = json_decode(file_get_contents('php://input'), true);
+            
+            // Если JSON не получен, используем POST данные
+            if (!$input && !empty($_POST)) {
+                $input = $_POST;
+            }
             
             if (!$input) {
                 http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+                echo json_encode(['success' => false, 'error' => 'No input data provided']);
                 exit;
             }
             

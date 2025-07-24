@@ -151,24 +151,43 @@ $vehicles = $vehicle->getAll();
                                     <div class="text-sm text-gray-500"><?php echo $order['weight']; ?> кг</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <?php if ($order['driver_name']): ?>
-                                    <div class="text-sm text-gray-900">
-                                        <i class="fas fa-user mr-1"></i><?php echo htmlspecialchars($order['driver_name']); ?>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($order['vehicle_number']): ?>
-                                    <div class="text-sm text-gray-500">
-                                        <i class="fas fa-truck mr-1"></i><?php echo htmlspecialchars($order['vehicle_number']); ?>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if ($order['carrier_name']): ?>
-                                    <div class="text-sm text-gray-500">
-                                        <i class="fas fa-building mr-1"></i><?php echo htmlspecialchars($order['carrier_name']); ?>
-                                    </div>
-                                    <?php endif; ?>
-                                    <?php if (!$order['driver_name'] && !$order['vehicle_number'] && !$order['carrier_name']): ?>
-                                    <span class="text-sm text-gray-400">Не назначено</span>
-                                    <?php endif; ?>
+                                    <?php 
+                                    $hasAssigned = false;
+                                    
+                                    // Поиск водителя
+                                    if (!empty($order['driver_id'])) {
+                                        $orderDriver = array_filter($drivers, fn($d) => $d['id'] == $order['driver_id']);
+                                        if (!empty($orderDriver)) {
+                                            $driverName = reset($orderDriver)['name'];
+                                            echo '<div class="text-sm text-gray-900"><i class="fas fa-user mr-1"></i>' . htmlspecialchars($driverName) . '</div>';
+                                            $hasAssigned = true;
+                                        }
+                                    }
+                                    
+                                    // Поиск транспорта
+                                    if (!empty($order['vehicle_id'])) {
+                                        $orderVehicle = array_filter($vehicles, fn($v) => $v['id'] == $order['vehicle_id']);
+                                        if (!empty($orderVehicle)) {
+                                            $vehicleNumber = reset($orderVehicle)['license_plate'];
+                                            echo '<div class="text-sm text-gray-500"><i class="fas fa-truck mr-1"></i>' . htmlspecialchars($vehicleNumber) . '</div>';
+                                            $hasAssigned = true;
+                                        }
+                                    }
+                                    
+                                    // Поиск перевозчика
+                                    if (!empty($order['carrier_id'])) {
+                                        $orderCarrier = array_filter($carriers, fn($c) => $c['id'] == $order['carrier_id']);
+                                        if (!empty($orderCarrier)) {
+                                            $carrierName = reset($orderCarrier)['name'];
+                                            echo '<div class="text-sm text-gray-500"><i class="fas fa-building mr-1"></i>' . htmlspecialchars($carrierName) . '</div>';
+                                            $hasAssigned = true;
+                                        }
+                                    }
+                                    
+                                    if (!$hasAssigned) {
+                                        echo '<span class="text-sm text-gray-400">Не назначено</span>';
+                                    }
+                                    ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full

@@ -6,14 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'App\\Auth' => $baseDir . '/src/Auth.php',
-    'App\\ClientAuth' => $baseDir . '/src/ClientAuth.php',
-    'App\\EmailService' => $baseDir . '/src/EmailService.php',
-    'App\\Models\\ActivityLog' => $baseDir . '/src/Models/ActivityLog.php',
-    'App\\Models\\Client' => $baseDir . '/src/Models/Client.php',
-    'App\\Models\\ShipmentOrder' => $baseDir . '/src/Models/ShipmentOrder.php',
-    'App\\Models\\User' => $baseDir . '/src/Models/User.php',
-    'App\\TelegramService' => $baseDir . '/src/TelegramService.php',
-    'App\\VerificationService' => $baseDir . '/src/VerificationService.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
 );

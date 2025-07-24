@@ -2,162 +2,297 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Models\User;
-use App\Auth;
+use App\CRM\CRMAuth;
+use App\CRM\RoleManager;
 
-Auth::requireAuth();
+// Проверка авторизации с правами на управление пользователями
+CRMAuth::requireCRMAuth('users', 'read');
 
-$userModel = new User();
-$success = '';
-$error = '';
+$roleManager = new RoleManager();
+$currentUser = CRMAuth::getCurrentUser();
 
-// Handle user creation
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'create_user') {
-        $username = trim($_POST['username'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        
-        if ($username && $password) {
-            try {
-                $existingUser = $userModel->findByUsername($username);
-                if ($existingUser) {
-                    $error = 'Пользователь с таким именем уже существует';
-                } else {
-                    $userData = [
-                        'username' => $username,
-                        'password' => $password
-                    ];
-                    $newUser = $userModel->create($userData);
-                    $success = 'Пользователь успешно создан';
-                }
-            } catch (Exception $e) {
-                $error = 'Ошибка создания пользователя: ' . $e->getMessage();
-            }
-        } else {
-            $error = 'Заполните все поля';
-        }
-    }
-}
+// Получение всех пользователей с ролями
+$stmt = $roleManager->db->prepare("
+    SELECT u.*, 
+           array_agg(r.name) FILTER (WHERE r.name IS NOT NULL) as roles,
+           array_agg(r.display_name) FILTER (WHERE r.display_name IS NOT NULL) as role_names
+    FROM users u
+    LEFT JOIN user_roles ur ON u.id = ur.user_id
+    LEFT JOIN roles r ON ur.role_id = r.id
+    WHERE u.id IS NOT NULL
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
+");
+$stmt->execute();
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get all users
-$users = [];
-try {
-    $users = $userModel->getAll();
-} catch (Exception $e) {
-    $error = 'Ошибка загрузки пользователей: ' . $e->getMessage();
-}
+$allRoles = $roleManager->getAllRoles();
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пользователи - Хром-KZ</title>
+    <title>Пользователи - CRM Хром-KZ</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-white min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-3">
-                <div class="flex items-center space-x-3">
-                    <img src="/assets/logo.png" alt="Хром-KZ" class="h-6 w-6" onerror="this.style.display='none'">
+<body class="bg-gray-50">
+    <div class="flex">
+        <!-- Боковое меню -->
+        <?php include 'components/crm_sidebar.php'; ?>
+
+        <!-- Основной контент -->
+        <div class="flex-1 ml-64">
+            <!-- Верхняя панель -->
+            <?php include 'components/crm_header.php'; ?>
+
+            <!-- Контент страницы -->
+            <div class="p-6">
+                <!-- Заголовок и кнопки действий -->
+                <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h1 class="text-lg font-medium text-gray-900">Пользователи</h1>
-                    </div>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="/admin/panel.php" class="text-sm text-gray-600 hover:text-gray-900">Заказы</a>
-                    <a href="/admin/dashboard.php" class="text-sm text-gray-600 hover:text-gray-900">Дашборд</a>
-                    <a href="/admin/reports.php" class="text-sm text-gray-600 hover:text-gray-900">Отчеты</a>
-                    <a href="/admin/logistics_calendar.php" class="text-sm text-gray-600 hover:text-gray-900">Календарь</a>
-                    <a href="/admin/quick_actions.php" class="text-sm text-gray-600 hover:text-gray-900">Быстрые действия</a>
-                    <a href="/admin/cost_calculator.php" class="text-sm text-gray-600 hover:text-gray-900">Калькулятор</a>
-                    <a href="/admin/search.php" class="text-sm text-gray-600 hover:text-gray-900">Поиск</a>
-                    <a href="/" class="text-sm text-gray-600 hover:text-gray-900">Главная</a>
-                    <a href="/admin/logout.php" class="text-sm text-gray-900 hover:text-red-600">Выйти</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-4 py-6">
-        <!-- Messages -->
-        <?php if ($success): ?>
-            <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm mb-6">
-                <?php echo htmlspecialchars($success); ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($error): ?>
-            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm mb-6">
-                <?php echo htmlspecialchars($error); ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Add User Form -->
-            <div class="bg-white border border-gray-200 p-6">
-                <h2 class="text-base font-medium text-gray-900 mb-6">Добавить пользователя</h2>
-                
-                <form method="POST" class="space-y-4">
-                    <input type="hidden" name="action" value="create_user">
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Логин</label>
-                        <input type="text" 
-                               name="username" 
-                               required 
-                               class="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:border-gray-900"
-                               placeholder="Введите логин">
+                        <h1 class="text-2xl font-bold text-gray-900">Управление пользователями</h1>
+                        <p class="text-gray-600">Управление пользователями системы и их ролями</p>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
-                        <input type="password" 
-                               name="password" 
-                               required 
-                               class="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:border-gray-900"
-                               placeholder="Введите пароль">
-                    </div>
-                    
-                    <button type="submit" 
-                            class="w-full bg-gray-900 text-white py-2 px-4 text-sm hover:bg-gray-800 focus:outline-none mt-6">
-                        Создать пользователя
+                    <?php if (CRMAuth::can('users', 'create')): ?>
+                    <button @click="showAddModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        Добавить пользователя
                     </button>
-                </form>
-            </div>
-
-            <!-- Users List -->
-            <div class="bg-white border border-gray-200">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-base font-medium text-gray-900">Список пользователей</h2>
+                    <?php endif; ?>
                 </div>
-                
-                <div class="p-6">
-                    <?php if (empty($users)): ?>
-                        <p class="text-gray-500 text-sm">Пользователи не найдены</p>
-                    <?php else: ?>
-                        <div class="space-y-3">
-                            <?php foreach ($users as $user): ?>
-                                <div class="border border-gray-200 p-4">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h3 class="text-sm font-medium text-gray-900">
-                                                <?php echo htmlspecialchars($user['username']); ?>
-                                            </h3>
-                                            <p class="text-xs text-gray-500">
-                                                Создан: <?php echo date('d.m.Y H:i', strtotime($user['created_at'])); ?>
-                                            </p>
+
+                <!-- Статистика пользователей -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <i class="fas fa-users text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-900"><?= count($users) ?></h3>
+                                <p class="text-gray-600">Всего пользователей</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <i class="fas fa-user-check text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <?= count(array_filter($users, fn($u) => $u['is_active'])) ?>
+                                </h3>
+                                <p class="text-gray-600">Активных</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-yellow-100 rounded-full">
+                                <i class="fas fa-shield-alt text-yellow-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <?php 
+                                    $adminCount = 0;
+                                    foreach ($users as $u) {
+                                        $roles = $u['roles'] ?? [];
+                                        if (is_string($roles)) {
+                                            $roles = trim($roles, '{}');
+                                            $roles = $roles ? explode(',', $roles) : [];
+                                        }
+                                        if (in_array('admin', $roles) || in_array('super_admin', $roles)) {
+                                            $adminCount++;
+                                        }
+                                    }
+                                    echo $adminCount;
+                                    ?>
+                                
+                                </h3>
+                                <p class="text-gray-600">Администраторов</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-full">
+                                <i class="fas fa-clock text-purple-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <?= count(array_filter($users, fn($u) => $u['last_login'] && strtotime($u['last_login']) > strtotime('-7 days'))) ?>
+                                </h3>
+                                <p class="text-gray-600">Активность 7 дней</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Таблица пользователей -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200" x-data="{showAddModal: false, showEditModal: false, editingUser: {}}">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-gray-900">Список пользователей</h2>
+                            <div class="flex space-x-2">
+                                <input type="text" placeholder="Поиск пользователей..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <option value="">Все роли</option>
+                                    <?php foreach ($allRoles as $role): ?>
+                                    <option value="<?= $role['name'] ?>"><?= htmlspecialchars($role['display_name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Пользователь</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Контакты</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Роли</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Должность</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Последний вход</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Статус</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <?php foreach ($users as $user): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                                <span class="text-white text-sm font-medium">
+                                                    <?= strtoupper(substr($user['first_name'] ?? $user['username'], 0, 1)) ?>
+                                                </span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    <?= htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')) ?>
+                                                </div>
+                                                <div class="text-sm text-gray-500">@<?= htmlspecialchars($user['username']) ?></div>
+                                            </div>
                                         </div>
-                                        <div class="text-xs text-gray-400">
-                                            ID: <?php echo $user['id']; ?>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900"><?= htmlspecialchars($user['email'] ?? '') ?></div>
+                                        <div class="text-sm text-gray-500"><?= htmlspecialchars($user['phone'] ?? '') ?></div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            <?php 
+                                            $roleNames = $user['role_names'];
+                                            if (is_string($roleNames)) {
+                                                $roleNames = trim($roleNames, '{}');
+                                                $roleNames = $roleNames ? explode(',', $roleNames) : [];
+                                            }
+                                            if (!empty($roleNames)): ?>
+                                                <?php foreach ($roleNames as $roleName): ?>
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    <?= htmlspecialchars(trim($roleName)) ?>
+                                                </span>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <span class="text-gray-500 text-sm">Роли не назначены</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900"><?= htmlspecialchars($user['position'] ?? '') ?></div>
+                                        <div class="text-sm text-gray-500"><?= htmlspecialchars($user['department'] ?? '') ?></div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        <?= $user['last_login'] ? date('d.m.Y H:i', strtotime($user['last_login'])) : 'Никогда' ?>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <?= $user['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                            <?= $user['is_active'] ? 'Активен' : 'Неактивен' ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex space-x-2">
+                                            <?php if (CRMAuth::can('users', 'update')): ?>
+                                            <button @click="editingUser = <?= htmlspecialchars(json_encode($user)) ?>; showEditModal = true" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <?php endif; ?>
+                                            
+                                            <button class="text-gray-600 hover:text-gray-900">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            
+                                            <?php if (CRMAuth::can('users', 'delete') && $user['id'] !== $currentUser['id']): ?>
+                                            <button class="text-red-600 hover:text-red-900">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Модальное окно добавления пользователя -->
+                    <div x-show="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-transition>
+                        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">Добавить пользователя</h3>
+                            </div>
+                            <form class="p-6">
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
+                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Логин</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Роли</label>
+                                        <div class="space-y-2">
+                                            <?php foreach ($allRoles as $role): ?>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" value="<?= $role['id'] ?>" class="mr-2">
+                                                <span class="text-sm"><?= htmlspecialchars($role['display_name']) ?></span>
+                                            </label>
+                                            <?php endforeach; ?>
                                         </div>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                                <div class="flex justify-end space-x-2 mt-6">
+                                    <button type="button" @click="showAddModal = false" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                        Отмена
+                                    </button>
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        Создать
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>

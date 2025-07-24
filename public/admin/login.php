@@ -2,8 +2,7 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Models\User;
-use App\Auth;
+use App\CRM\CRMAuth;
 
 $error = '';
 
@@ -13,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($username && $password) {
         try {
-            if (Auth::login($username, $password)) {
+            if (CRMAuth::loginWithActivity($username, $password)) {
                 header('Location: /admin/crm_dashboard.php');
                 exit;
             } else {

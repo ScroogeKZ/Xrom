@@ -12,7 +12,7 @@ class Driver {
     }
     
     public function getAll($status = null, $carrierId = null) {
-        $sql = "SELECT d.*, c.company_name 
+        $sql = "SELECT d.*, c.name as carrier_name 
                 FROM drivers d 
                 LEFT JOIN carriers c ON d.carrier_id = c.id 
                 WHERE 1=1";
@@ -28,7 +28,7 @@ class Driver {
             $params[] = $carrierId;
         }
         
-        $sql .= " ORDER BY d.name";
+        $sql .= " ORDER BY d.first_name, d.last_name";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -43,11 +43,12 @@ class Driver {
     
     public function create($data) {
         $stmt = $this->db->prepare("
-            INSERT INTO drivers (name, phone, license_number, carrier_id, status) 
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO drivers (first_name, last_name, phone, license_number, carrier_id, status) 
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
         return $stmt->execute([
-            $data['name'],
+            $data['first_name'],
+            $data['last_name'],
             $data['phone'],
             $data['license_number'],
             $data['carrier_id'],
@@ -58,12 +59,13 @@ class Driver {
     public function update($id, $data) {
         $stmt = $this->db->prepare("
             UPDATE drivers 
-            SET name = ?, phone = ?, license_number = ?, carrier_id = ?, 
-                status = ?, updated_at = CURRENT_TIMESTAMP 
+            SET first_name = ?, last_name = ?, phone = ?, license_number = ?, carrier_id = ?, 
+                status = ?
             WHERE id = ?
         ");
         return $stmt->execute([
-            $data['name'],
+            $data['first_name'],
+            $data['last_name'],
             $data['phone'],
             $data['license_number'],
             $data['carrier_id'],
