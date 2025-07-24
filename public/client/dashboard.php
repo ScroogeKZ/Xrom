@@ -5,20 +5,18 @@ require_once __DIR__ . '/../../config/database.php';
 
 use App\Models\ShipmentOrder;
 use App\Models\Client;
+use App\ClientAuth;
 
-// Check if client is logged in
-if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
-    header('Location: /client/login.php');
-    exit;
-}
+// Проверяем авторизацию
+ClientAuth::requireLogin();
 
-$clientId = $_SESSION['client_id'];
-$clientName = $_SESSION['client_name'];
+$clientId = ClientAuth::getClientId();
+$clientName = ClientAuth::getClientName();
 
 // Get client's orders
 try {
     $shipmentOrder = new ShipmentOrder();
-    $orders = $shipmentOrder->getByClientPhone($_SESSION['client_phone']);
+    $orders = $shipmentOrder->getByClientPhone(ClientAuth::getClientPhone());
 } catch (Exception $e) {
     $orders = [];
     $error = "Ошибка загрузки заказов: " . $e->getMessage();

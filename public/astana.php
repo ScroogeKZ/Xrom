@@ -57,23 +57,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Validate phone numbers
-        $phone = $_POST['phone'] ?? '';
-        $recipientPhone = $_POST['recipient_phone'] ?? '';
+        $phone = $_POST['contact_phone'] ?? '';
         
         if (!validateKazakhstanPhone($phone)) {
-            throw new Exception('Неверный формат номера телефона отправителя. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
-        }
-        
-        if (!validateKazakhstanPhone($recipientPhone)) {
-            throw new Exception('Неверный формат номера телефона получателя. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
+            throw new Exception('Неверный формат номера телефона. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
         }
 
         $data = [
             'order_type' => 'astana',
             'pickup_address' => $_POST['pickup_address'] ?? '',
             'ready_time' => $readyTime,
-            'contact_name' => $_POST['contact_person'] ?? '',
-            'contact_phone' => $_POST['phone'] ?? '',
+            'contact_name' => $_POST['contact_name'] ?? '',
+            'contact_phone' => $_POST['contact_phone'] ?? '',
             'cargo_type' => $_POST['cargo_type'] ?? '',
             'weight' => $_POST['weight'] ?? '',
             'dimensions' => $_POST['dimensions'] ?? '',
@@ -96,6 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (Exception $e) {
                 error_log("Email notification failed: " . $e->getMessage());
             }
+            
+            // Перенаправляем или показываем сообщение об успехе
+            echo "<div style='padding: 20px; background: green; color: white; text-align: center;'>Заказ успешно создан! ID заказа: " . $result['id'] . "</div>";
+            exit;
         }
     } catch (Exception $e) {
         $error = 'Ошибка при создании заказа: ' . $e->getMessage();

@@ -63,14 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Validate phone numbers
-        $phone = $_POST['phone'] ?? '';
+        $phone = $_POST['contact_phone'] ?? '';
         $recipientPhone = $_POST['recipient_phone'] ?? '';
         
         if (!validateKazakhstanPhone($phone)) {
             throw new Exception('Неверный формат номера телефона отправителя. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
         }
         
-        if (!validateKazakhstanPhone($recipientPhone)) {
+        if ($recipientPhone && !validateKazakhstanPhone($recipientPhone)) {
             throw new Exception('Неверный формат номера телефона получателя. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
         }
 

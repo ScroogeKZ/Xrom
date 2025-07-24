@@ -16,13 +16,14 @@ class Client {
     }
     
     public function create($data) {
-        $sql = "INSERT INTO clients (phone, email, password_hash) VALUES (:phone, :email, :password_hash) RETURNING *";
+        $sql = "INSERT INTO clients (name, email, phone, password_hash) VALUES (:name, :email, :phone, :password_hash) RETURNING *";
         
         try {
             $stmt = $this->db->prepare($sql);
             $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
             
             $stmt->execute([
+                ':name' => $data['name'] ?? '',
                 ':phone' => $data['phone'],
                 ':email' => $data['email'] ?? null,
                 ':password_hash' => $hashedPassword

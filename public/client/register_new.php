@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($phone) || empty($password)) {
             $error = 'Телефон и пароль обязательны для заполнения';
         } elseif (!VerificationService::validatePhone($phone)) {
-            $error = 'Неверный формат номера телефона. Используйте формат +77xxxxxxxxx или 87xxxxxxxxx';
+            $error = 'Неверный формат номера телефона (используйте +7XXXXXXXXXX)';
         } elseif (!empty($email) && !VerificationService::validateEmail($email)) {
             $error = 'Неверный формат email адреса';
         } elseif (strlen($password) < 6) {
@@ -132,27 +132,6 @@ if ($step === 'verify') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация с верификацией - Хром-KZ Логистика</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function validatePhone(input) {
-            const phone = input.value;
-            const phonePattern = /^(\+77|87)\d{9}$/;
-            
-            if (phone && !phonePattern.test(phone)) {
-                input.setCustomValidity('Используйте формат +77xxxxxxxxx или 87xxxxxxxxx');
-            } else {
-                input.setCustomValidity('');
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const phoneInput = document.querySelector('input[type="tel"]');
-            if (phoneInput) {
-                phoneInput.addEventListener('input', function() {
-                    validatePhone(this);
-                });
-            }
-        });
-    </script>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center">
     <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
@@ -186,8 +165,7 @@ if ($step === 'verify') {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Номер телефона *</label>
                     <input type="tel" name="phone" required 
-                           pattern="(\+77|87)\d{9}" title="Формат: +77xxxxxxxxx или 87xxxxxxxxx"
-                           placeholder="+77xxxxxxxxx или 87xxxxxxxxx"
+                           placeholder="+7 777 123 45 67"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <p class="text-xs text-gray-500 mt-1">На этот номер будет отправлен код подтверждения</p>
                 </div>
