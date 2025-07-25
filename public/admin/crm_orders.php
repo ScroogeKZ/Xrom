@@ -158,9 +158,12 @@ $vehicles = $vehicle->getAll();
                                     if (!empty($order['driver_id'])) {
                                         $orderDriver = array_filter($drivers, fn($d) => $d['id'] == $order['driver_id']);
                                         if (!empty($orderDriver)) {
-                                            $driverName = reset($orderDriver)['name'];
-                                            echo '<div class="text-sm text-gray-900"><i class="fas fa-user mr-1"></i>' . htmlspecialchars($driverName) . '</div>';
-                                            $hasAssigned = true;
+                                            $driver = reset($orderDriver);
+                                            $driverName = ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '');
+                                            if (trim($driverName)) {
+                                                echo '<div class="text-sm text-gray-900"><i class="fas fa-user mr-1"></i>' . htmlspecialchars(trim($driverName)) . '</div>';
+                                                $hasAssigned = true;
+                                            }
                                         }
                                     }
                                     

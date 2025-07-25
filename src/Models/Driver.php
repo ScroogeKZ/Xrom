@@ -28,7 +28,7 @@ class Driver {
             $params[] = $carrierId;
         }
         
-        $sql .= " ORDER BY d.name";
+        $sql .= " ORDER BY d.first_name, d.last_name";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'destination_city' => $_POST['destination_city'] ?? '',
             'delivery_address' => $_POST['delivery_address'] ?? '',
             'delivery_method' => $_POST['delivery_method'] ?? '',
-            'desired_arrival_date' => $_POST['desired_arrival_date'] ?? '',
+            'desired_arrival_date' => !empty($_POST['desired_arrival_date']) ? $_POST['desired_arrival_date'] : null,
             'recipient_contact' => $_POST['recipient_contact'] ?? '',
             'recipient_phone' => $_POST['recipient_phone'] ?? '',
             'notes' => $_POST['notes'] ?? '',

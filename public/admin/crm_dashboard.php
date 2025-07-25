@@ -5,12 +5,63 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\CRM\CRMAuth;
 use App\Models\DashboardWidget;
+use App\Models\ShipmentOrder;
 
 // Проверка авторизации
 CRMAuth::requireCRMAuth();
 
 $currentUser = CRMAuth::getCurrentUser();
 $widgetModel = new DashboardWidget();
+$orderModel = new ShipmentOrder();
+
+// Получаем статистику заказов
+$db = Database::getInstance()->getConnection();
+
+// Подсчет заказов по статусам
+$stmt = $db->prepare("SELECT status, COUNT(*) as count FROM shipment_orders GROUP BY status");
+$stmt->execute();
+$orderStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$newOrders = 0;
+$inProgressOrders = 0; 
+$completedOrders = 0;
+
+foreach ($orderStats as $stat) {
+    switch ($stat['status']) {
+        case 'new':
+        case 'pending':
+            $newOrders += $stat['count'];
+            break;
+        case 'in_progress':
+        case 'picked_up':
+        case 'in_transit':
+            $inProgressOrders += $stat['count'];
+            break;
+        case 'completed':
+        case 'delivered':
+            $completedOrders += $stat['count'];
+            break;
+    }
+}
+
+// Подсчет ресурсов
+$stmt = $db->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_active = true THEN 1 ELSE 0 END) as active FROM carriers");
+$stmt->execute();
+$carrierStats = $stmt->fetch(PDO::FETCH_ASSOC);
+$totalCarriers = $carrierStats['total'];
+$activeCarriers = $carrierStats['active'];
+
+$stmt = $db->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_active = true THEN 1 ELSE 0 END) as active FROM vehicles");
+$stmt->execute();
+$vehicleStats = $stmt->fetch(PDO::FETCH_ASSOC);
+$totalVehicles = $vehicleStats['total'];
+$availableVehicles = $vehicleStats['active'];
+
+$stmt = $db->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_active = true THEN 1 ELSE 0 END) as active FROM drivers");
+$stmt->execute();
+$driverStats = $stmt->fetch(PDO::FETCH_ASSOC);
+$totalDrivers = $driverStats['total'];
+$availableDrivers = $driverStats['active'];
 
 // Получаем пользовательские виджеты
 $userWidgets = $widgetModel->getUserWidgets($currentUser['id']);
@@ -18,10 +69,10 @@ $userWidgets = $widgetModel->getUserWidgets($currentUser['id']);
 // Если у пользователя нет настроек, создаем дефолтные виджеты
 if (empty($userWidgets)) {
     $defaultWidgets = [
-        ['type' => 'orders_stats', 'config' => [], 'visible' => true],
-        ['type' => 'recent_orders', 'config' => ['limit' => 5], 'visible' => true],
-        ['type' => 'carriers_stats', 'config' => [], 'visible' => true],
-        ['type' => 'quick_actions', 'config' => [], 'visible' => true]
+        ['type' => 'orders_stats', 'config' => [], 'enabled' => true],
+        ['type' => 'recent_orders', 'config' => ['limit' => 5], 'enabled' => true],
+        ['type' => 'carriers_stats', 'config' => [], 'enabled' => true],
+        ['type' => 'quick_actions', 'config' => [], 'enabled' => true]
     ];
     $widgetModel->saveUserWidgets($currentUser['id'], $defaultWidgets);
     $userWidgets = $widgetModel->getUserWidgets($currentUser['id']);
@@ -66,7 +117,7 @@ if (empty($userWidgets)) {
                 <!-- Пользовательские виджеты -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <?php foreach ($userWidgets as $widget): ?>
-                        <?php if ($widget['is_visible']): ?>
+                        <?php if ($widget['is_enabled'] ?? true): ?>
                             <?php
                                 $config = json_decode($widget['widget_config'], true) ?? [];
                                 $widgetData = $widgetModel->getWidgetData($widget['widget_type'], $config);

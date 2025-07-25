@@ -18,8 +18,8 @@ class DashboardWidget {
     public function getUserWidgets($userId) {
         $stmt = $this->db->prepare("
             SELECT * FROM dashboard_widgets 
-            WHERE user_id = ? 
-            ORDER BY position ASC
+            WHERE user_id = ? AND is_enabled = true
+            ORDER BY position_y, position_x ASC
         ");
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -35,8 +35,8 @@ class DashboardWidget {
             
             // Insert new widgets
             $stmt = $this->db->prepare("
-                INSERT INTO dashboard_widgets (user_id, widget_type, widget_config, position, is_visible) 
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO dashboard_widgets (user_id, widget_type, widget_config, position_x, position_y, is_enabled) 
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
             
             foreach ($widgets as $index => $widget) {
@@ -44,8 +44,9 @@ class DashboardWidget {
                     $userId,
                     $widget['type'],
                     json_encode($widget['config'] ?? []),
-                    $index,
-                    $widget['visible'] ?? true
+                    $widget['x'] ?? 0,
+                    $widget['y'] ?? $index,
+                    $widget['enabled'] ?? true
                 ]);
             }
             
@@ -160,15 +161,15 @@ class DashboardWidget {
     }
     
     private function getCarriersStats() {
-        $carriersStmt = $this->db->prepare("SELECT COUNT(*) as total FROM carriers WHERE status = 'active'");
+        $carriersStmt = $this->db->prepare("SELECT COUNT(*) as total FROM carriers WHERE is_active = true");
         $carriersStmt->execute();
         $carriers = $carriersStmt->fetch(PDO::FETCH_ASSOC);
         
-        $vehiclesStmt = $this->db->prepare("SELECT COUNT(*) as total FROM vehicles WHERE status = 'available'");
+        $vehiclesStmt = $this->db->prepare("SELECT COUNT(*) as total FROM vehicles WHERE is_active = true");
         $vehiclesStmt->execute();
         $vehicles = $vehiclesStmt->fetch(PDO::FETCH_ASSOC);
         
-        $driversStmt = $this->db->prepare("SELECT COUNT(*) as total FROM drivers WHERE status = 'available'");
+        $driversStmt = $this->db->prepare("SELECT COUNT(*) as total FROM drivers WHERE is_active = true");
         $driversStmt->execute();
         $drivers = $driversStmt->fetch(PDO::FETCH_ASSOC);
         

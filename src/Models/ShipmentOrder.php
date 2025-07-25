@@ -19,11 +19,13 @@ class ShipmentOrder {
         $sql = "INSERT INTO shipment_orders (
             order_type, pickup_city, pickup_address, ready_time, contact_name, contact_phone,
             cargo_type, weight, dimensions, destination_city, delivery_address,
-            delivery_method, desired_arrival_date, recipient_contact, recipient_phone, notes, comment, status
+            delivery_method, desired_arrival_date, recipient_contact, recipient_phone, notes, comment, status,
+            customs_value, customs_description, insurance_required, tracking_required
         ) VALUES (
             :order_type, :pickup_city, :pickup_address, :ready_time, :contact_name, :contact_phone,
             :cargo_type, :weight, :dimensions, :destination_city, :delivery_address,
-            :delivery_method, :desired_arrival_date, :recipient_contact, :recipient_phone, :notes, :comment, :status
+            :delivery_method, :desired_arrival_date, :recipient_contact, :recipient_phone, :notes, :comment, :status,
+            :customs_value, :customs_description, :insurance_required, :tracking_required
         ) RETURNING *";
         
         try {
@@ -49,7 +51,11 @@ class ShipmentOrder {
                 ':recipient_phone' => $data['recipient_phone'] ?? null,
                 ':notes' => $data['notes'] ?? null,
                 ':comment' => $data['comment'] ?? null,
-                ':status' => $status
+                ':status' => $status,
+                ':customs_value' => isset($data['customs_value']) && $data['customs_value'] !== '' ? floatval($data['customs_value']) : null,
+                ':customs_description' => $data['customs_description'] ?? null,
+                ':insurance_required' => $data['insurance_required'] ?? false,
+                ':tracking_required' => $data['tracking_required'] ?? false
             ]);
             
             return $stmt->fetch();

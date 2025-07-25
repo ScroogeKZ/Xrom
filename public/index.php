@@ -125,6 +125,11 @@ use App\Auth;
                         🗂️ Создать межгородской заказ
                     </span>
                 </a>
+                <a href="/international.php" class="group border-2 border-white/50 text-white px-6 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg hover:bg-white hover:text-primary transition-all duration-300 w-full sm:w-auto text-center">
+                    <span class="flex items-center justify-center">
+                        🌍 Международные отгрузки
+                    </span>
+                </a>
                 <a href="/tracking.php" class="group border-2 border-secondary/50 text-secondary px-6 md:px-10 py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg hover:bg-secondary hover:text-white transition-all duration-300 w-full sm:w-auto text-center">
                     <span class="flex items-center justify-center">
                         📍 Отследить заказ
@@ -162,7 +167,7 @@ use App\Auth;
                 </p>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-8 md:gap-12">
+            <div class="grid md:grid-cols-3 gap-8 md:gap-12">
                 <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 md:p-10 rounded-3xl shadow-xl card-hover border border-blue-200">
                     <div class="bg-primary text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
                         🚚
@@ -193,11 +198,11 @@ use App\Auth;
                 
                 <div class="bg-gradient-to-br from-orange-50 to-amber-100 p-6 md:p-10 rounded-3xl shadow-xl card-hover border border-orange-200">
                     <div class="bg-secondary text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
-                        🌍
+                        🗂️
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-gray-800">Межгородские заказы</h3>
                     <p class="text-gray-600 mb-8 leading-relaxed">
-                        Создание заявок на доставку между городами. 
+                        Создание заявок на доставку между городами Казахстана. 
                         Расширенная форма с дополнительными параметрами для межрегиональных отправлений.
                     </p>
                     <ul class="space-y-3 mb-8 text-gray-700">
@@ -215,6 +220,34 @@ use App\Auth;
                         </li>
                     </ul>
                     <a href="/regional.php" class="inline-block bg-secondary text-white px-8 py-4 rounded-xl font-semibold hover:bg-amber-600 transform hover:scale-105 transition-all duration-200">
+                        Создать заказ
+                    </a>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-100 p-6 md:p-10 rounded-3xl shadow-xl card-hover border border-purple-200">
+                    <div class="bg-purple-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        🌍
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Международные отгрузки</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Оформление заявок на международную доставку грузов. 
+                        Специализированная форма с таможенными и валютными полями.
+                    </p>
+                    <ul class="space-y-3 mb-8 text-gray-700">
+                        <li class="flex items-center">
+                            <span class="w-2 h-2 bg-accent rounded-full mr-3"></span>
+                            Выбор стран назначения
+                        </li>
+                        <li class="flex items-center">
+                            <span class="w-2 h-2 bg-accent rounded-full mr-3"></span>
+                            Таможенное оформление
+                        </li>
+                        <li class="flex items-center">
+                            <span class="w-2 h-2 bg-accent rounded-full mr-3"></span>
+                            Страхование и трекинг
+                        </li>
+                    </ul>
+                    <a href="/international.php" class="inline-block bg-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-purple-700 transform hover:scale-105 transition-all duration-200">
                         Создать заказ
                     </a>
                 </div>

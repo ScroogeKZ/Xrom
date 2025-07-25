@@ -21,6 +21,21 @@ class ComposerStaticInit8c016acfb63e012748cec901ae5dd2c4
     );
 
     public static $classMap = array (
+        'App\\Auth' => __DIR__ . '/../..' . '/src/Auth.php',
+        'App\\CRM\\CRMAuth' => __DIR__ . '/../..' . '/src/CRM/CRMAuth.php',
+        'App\\CRM\\RoleManager' => __DIR__ . '/../..' . '/src/CRM/RoleManager.php',
+        'App\\ClientAuth' => __DIR__ . '/../..' . '/src/ClientAuth.php',
+        'App\\EmailService' => __DIR__ . '/../..' . '/src/EmailService.php',
+        'App\\Models\\ActivityLog' => __DIR__ . '/../..' . '/src/Models/ActivityLog.php',
+        'App\\Models\\Carrier' => __DIR__ . '/../..' . '/src/Models/Carrier.php',
+        'App\\Models\\Client' => __DIR__ . '/../..' . '/src/Models/Client.php',
+        'App\\Models\\DashboardWidget' => __DIR__ . '/../..' . '/src/Models/DashboardWidget.php',
+        'App\\Models\\Driver' => __DIR__ . '/../..' . '/src/Models/Driver.php',
+        'App\\Models\\ShipmentOrder' => __DIR__ . '/../..' . '/src/Models/ShipmentOrder.php',
+        'App\\Models\\User' => __DIR__ . '/../..' . '/src/Models/User.php',
+        'App\\Models\\Vehicle' => __DIR__ . '/../..' . '/src/Models/Vehicle.php',
+        'App\\TelegramService' => __DIR__ . '/../..' . '/src/TelegramService.php',
+        'App\\VerificationService' => __DIR__ . '/../..' . '/src/VerificationService.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
